@@ -40,6 +40,7 @@ public class AuthenticationService {
         saveUserToken(savedUser, jwtToken);
         String confirmmsg = "Hi " + user.getUsername() + ", thank you for registering to MovieClub. Click this link to confirm: " + thisUrl +"/confirmRegistration?token=" + jwtToken + ".";
         // send confirmation email!
+        System.out.println(user.getEmail() + "!!!!!!+++++!!!!");
         emailService.sendSimpleEmail(user.getEmail(), "MovieClub registration", confirmmsg );
 
 
