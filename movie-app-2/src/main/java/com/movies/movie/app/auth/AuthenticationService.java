@@ -1,12 +1,14 @@
 package com.movies.movie.app.auth;
 import com.movies.movie.app.Config.JwtService;
 import com.movies.movie.app.Mail.EmailService;
+import com.movies.movie.app.Mail.HtmlContent;
 import com.movies.movie.app.Token.Token;
 import com.movies.movie.app.Token.TokenRepository;
 import com.movies.movie.app.Token.TokenType;
 import com.movies.movie.app.user.Role;
 import com.movies.movie.app.user.User;
 import com.movies.movie.app.user.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +28,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
-    String thisUrl = "http::localhost:8080";
+    String thisUrl = "http://localhost:9191/api/v1/auth";
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -38,10 +40,15 @@ public class AuthenticationService {
         var savedUser = repository.save(user);
         var jwtToken = jwtService.generateToken(user);
         saveUserToken(savedUser, jwtToken);
-        String confirmmsg = "Hi " + user.getUsername() + ", thank you for registering to MovieClub. Click this link to confirm: " + thisUrl +"/confirmRegistration?token=" + jwtToken + ".";
+        //String confirmmsg = "Hi " + user.getUsername() + ", thank you for registering to MovieClub. Click this link to confirm: " + thisUrl +"/confirmRegistration?token=" + jwtToken + ".";
         // send confirmation email!
-        System.out.println(user.getEmail() + "!!!!!!+++++!!!!");
-        emailService.sendSimpleEmail(user.getEmail(), "MovieClub registration", confirmmsg );
+        HtmlContent htmlContent = new HtmlContent(thisUrl+"/confirmRegistration?token=" + jwtToken, user.getUsername());
+        try {
+            emailService.sendNiceEmail(user.getEmail(), "MovieClub registration", htmlContent.getHtmlContent());
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        //emailService.sendSimpleEmail(user.getEmail(), "MovieClub registration", confirmmsg );
 
 
         //non mandare il token come risposta per sicurezza, altrimenti chiunque puo confermare qualunque email
