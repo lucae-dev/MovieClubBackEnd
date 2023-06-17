@@ -1,12 +1,17 @@
 package com.movies.movie.app.WatchProvider;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
-
+@Entity
 public class WatchProvider {
-    private String providerName;
-    private int providerId;
-    private String logoPath;
+    private String provider_name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer provider_id;
+    private String logo_path;
     private String watchLink;
     private String type;
 
@@ -16,45 +21,28 @@ public class WatchProvider {
     public WatchProvider() {
     }
 
-    // Constructor with all fields
-    public WatchProvider(String providerName, int providerId, String logoPath, String watchLink) {
-        this.providerName = providerName;
-        this.providerId = providerId;
-        this.logoPath = logoPath;
-        this.watchLink = watchLink;
+    public String getProvider_name() {
+        return provider_name;
     }
 
-    public WatchProvider(String providerName, int providerId, String logoPath, String watchLink, String type) {
-        this.providerName = providerName;
-        this.providerId = providerId;
-        this.logoPath = logoPath;
-        this.watchLink = watchLink;
-        this.type = type;
+    public void setProvider_name(String provider_name) {
+        this.provider_name = provider_name;
     }
 
-    // Getters and setters
-    public String getProviderName() {
-        return providerName;
+    public Integer getProvider_id() {
+        return provider_id;
     }
 
-    public void setProviderName(String providerName) {
-        this.providerName = providerName;
+    public void setProvider_id(Integer provider_id) {
+        this.provider_id = provider_id;
     }
 
-    public int getProviderId() {
-        return providerId;
+    public String getLogo_path() {
+        return logo_path;
     }
 
-    public void setProviderId(int providerId) {
-        this.providerId = providerId;
-    }
-
-    public String getLogoPath() {
-        return logoPath;
-    }
-
-    public void setLogoPath(String logoPath) {
-        this.logoPath = logoPath;
+    public void setLogo_path(String logo_path) {
+        this.logo_path = logo_path;
     }
 
     public String getWatchLink() {
@@ -63,5 +51,13 @@ public class WatchProvider {
 
     public void setWatchLink(String watchLink) {
         this.watchLink = watchLink;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

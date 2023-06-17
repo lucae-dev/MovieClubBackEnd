@@ -45,15 +45,22 @@ public class TMDBService {
     }
 */
 
-    // Function to search for movies by a query string
-    public List<Movie> searchMovies(String query) {
-        String url = String.format(baseUrl + "search/movie?query=%s&api_key=%s", query, apiKey);
-        ParameterizedTypeReference<List<Movie>> responseType = new ParameterizedTypeReference<List<Movie>>() {};
-        return restTemplate.exchange(url, HttpMethod.GET, null, responseType).getBody();
+    // Function to search for movies by a query string, result in the countrycode language
+    public List<Movie> searchMovies(String query, String countrycode) {
+        String url = baseUrl + "/search/movie?api_key=" + apiKey + "&query=" + query + "&language=" + countrycode;
+        ResponseEntity<MovieListResponse> response = restTemplate.getForEntity(url, MovieListResponse.class);
+        List<Movie> movies = response.getBody().getResults();
+
+        for (Movie movie : movies){
+            movie.setLanguage(countrycode);
+        }
+        return movies;
+
     }
 
 
     // Function to search for directors, actors, writers or producers by a query string
+    /*
     public List<Person> searchPeople(String query) {
         String url = String.format(baseUrl + "search/multi?query=%s&api_key=%s&include_adult=false&with_crew=22,23,24,25", query, apiKey);
         ParameterizedTypeReference<List<LinkedHashMap<String, Object>>> responseType = new ParameterizedTypeReference<List<LinkedHashMap<String, Object>>>() {};
@@ -70,7 +77,7 @@ public class TMDBService {
             }
         }
         return people;
-    }
+    }*/
 
 
     // Function to get movie or TV show details by ID
@@ -81,10 +88,12 @@ public class TMDBService {
     }*/
 
     // Method to retrieve the details of a movie with the given ID
-    public List<Movie> getMovieDetails(int movieId) {
-        String url = baseUrl + "movie/" + movieId + "?api_key=" + apiKey;
-        ParameterizedTypeReference<List<Movie>> responseType = new ParameterizedTypeReference<List<Movie>>() {};
-        return restTemplate.exchange(url, HttpMethod.GET, null, responseType).getBody();
+    public List<Movie> getMovieDetails(int movieId, String languagecode) {
+        String url = baseUrl + "movie/" + movieId + "?api_key=" + apiKey + "&language=" + languagecode;
+        ResponseEntity<Movie> response = restTemplate.getForEntity(url, Movie.class);
+
+        Movie movie = response.getBody();
+        return movie;
     }
 
 

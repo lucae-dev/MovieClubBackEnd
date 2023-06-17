@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,29 +16,41 @@ import java.util.Set;
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long movie_id;
     private Long id;
+    //langauge of the movie caracteristics ()
+    private String language;
+
     @NotNull(message = "title is required")
     private String title;
-    private int year;
+    private LocalDate release_date;
     // modifica come relazione uno a molti generi e crea classe genere!
+    private String genres_ids;
+    private String overview;
+    private String description;
+    private double totpoints;
+    private float popularity;
+    private float vote_avarage;
+    private String poster_path;
+    private String backdrop_path;
+    private int votes;
+    @OneToMany(mappedBy = "movie")
+    Set<MovieRating> ratings;
+
+
+    private int runtime;
+    private int budget;
+    private int revenue;
+    private String tagline;
+    List
+
+/*
     @OneToMany
     @JoinTable(name = "movie_genres",
             joinColumns =@JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private List<Genre> genres;
-    private String description;
-    private double totpoints;
-    private int votes;
-    @OneToMany(mappedBy = "movie")
-    Set<MovieRating> ratings;
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "follows",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "follower_id"))
-    private Set<User> followers;
-
-    @ManyToMany(mappedBy = "followers", cascade = CascadeType.ALL)
-    private Set<User> following;
+    */
 
     //Collections relationship
 
@@ -44,16 +58,16 @@ public class Movie {
     public Movie() {
     }
 
-    public Movie(String title, int year) {
+    public Movie(String title, LocalDate release_date) {
         this.title = title;
-        this.year = year;
+        this.release_date = release_date;
         totpoints=0;
         votes=0;
     }
 
-    public Movie(String title, int year, String description) {
+    public Movie(String title, LocalDate release_date, String description) {
         this.title = title;
-        this.year = year;
+        this.release_date = release_date;
         this.description = description;
         totpoints=0;
         votes=0;
@@ -75,12 +89,84 @@ public class Movie {
         this.title = title;
     }
 
-    public int getYear() {
-        return year;
+    public Long getMovie_id() {
+        return movie_id;
     }
 
-    public void setYear(int year) {
-        this.year = year;
+    public void setMovie_id(Long movie_id) {
+        this.movie_id = movie_id;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public LocalDate getRelease_date() {
+        return release_date;
+    }
+
+    public void setRelease_date(LocalDate release_date) {
+        this.release_date = release_date;
+    }
+
+    public String getGenres_ids() {
+        return genres_ids;
+    }
+
+    public void setGenres_ids(String genres_ids) {
+        this.genres_ids = genres_ids;
+    }
+
+    public String getOverview() {
+        return overview;
+    }
+
+    public void setOverview(String overview) {
+        this.overview = overview;
+    }
+
+    public float getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(float popularity) {
+        this.popularity = popularity;
+    }
+
+    public float getVote_avarage() {
+        return vote_avarage;
+    }
+
+    public void setVote_avarage(float vote_avarage) {
+        this.vote_avarage = vote_avarage;
+    }
+
+    public String getPoster_path() {
+        return poster_path;
+    }
+
+    public void setPoster_path(String poster_path) {
+        this.poster_path = poster_path;
+    }
+
+    public String getBackdrop_path() {
+        return backdrop_path;
+    }
+
+    public void setBackdrop_path(String backdrop_path) {
+        this.backdrop_path = backdrop_path;
+    }
+
+    public Set<MovieRating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(Set<MovieRating> ratings) {
+        this.ratings = ratings;
     }
 
     public String getDescription() {
