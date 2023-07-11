@@ -14,7 +14,9 @@
       <configuration>
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
-        <datasource-mapping />
+        <datasource-mapping>
+          <factory-entry name="movie-app" />
+        </datasource-mapping>
         <naming-strategy-map />
       </configuration>
     </facet>
@@ -97,6 +99,30 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.14.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.14.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.14.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-webflux:3.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-reactor-netty:3.0.2" level="project" />
+    <orderEntry type="library" name="Maven: io.projectreactor.netty:reactor-netty-http:1.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-common:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-http2:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver-dns:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-dns:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver-dns-native-macos:osx-x86_64:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver-dns-classes-macos:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-epoll:linux-x86_64:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-unix-common:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-classes-epoll:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.projectreactor.netty:reactor-netty-core:1.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler-proxy:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-socks:4.1.87.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-webflux:6.0.4" level="project" />
+    <orderEntry type="library" name="Maven: io.projectreactor:reactor-core:3.5.2" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-mail:3.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context-support:6.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.angus:jakarta.mail:1.0.0" level="project" />

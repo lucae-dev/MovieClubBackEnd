@@ -5,6 +5,7 @@ import com.movies.movie.app.MovieRating.MovieRatingService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -16,7 +17,20 @@ public class MovieController {
     private MovieRepository movieRepository;
 
     @Autowired
+    private MovieService movieService;
+
+    @Autowired
     private MovieRatingService movieRatingService;
+
+    @GetMapping("/authTest")
+    public String testAuth(){
+        return "Fuck ";
+    }
+
+    @GetMapping("/discoverMovies")
+    public List<Movie> discoverMovies(@RequestParam Integer genreId, @RequestParam Integer providerId){
+        return movieService.discoverMovies(genreId, providerId);
+    }
 
     @GetMapping("/getAll")
     public List<Movie> getAllMovies(){

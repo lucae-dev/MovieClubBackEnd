@@ -24,13 +24,15 @@ public class Movie {
     @NotNull(message = "title is required")
     private String title;
     private LocalDate release_date;
-    // modifica come relazione uno a molti generi e crea classe genere!
-    private String genres_ids;
+    @ElementCollection
+    private List<Integer> genre_ids;
     private String overview;
     private String description;
     private double totpoints;
     private float popularity;
-    private float vote_avarage;
+    //vote_avarage and vote_count are from TMDB votes
+    private float vote_average;
+    private int vote_count;
     private String poster_path;
     private String backdrop_path;
     private int votes;
@@ -42,7 +44,6 @@ public class Movie {
     private int budget;
     private int revenue;
     private String tagline;
-    List
 
 /*
     @OneToMany
@@ -113,12 +114,44 @@ public class Movie {
         this.release_date = release_date;
     }
 
-    public String getGenres_ids() {
-        return genres_ids;
+    public List<Integer> getGenre_ids() {
+        return genre_ids;
     }
 
-    public void setGenres_ids(String genres_ids) {
-        this.genres_ids = genres_ids;
+    public void setGenre_ids(List<Integer> genre_ids) {
+        this.genre_ids = genre_ids;
+    }
+
+    public int getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(int runtime) {
+        this.runtime = runtime;
+    }
+
+    public int getBudget() {
+        return budget;
+    }
+
+    public void setBudget(int budget) {
+        this.budget = budget;
+    }
+
+    public int getRevenue() {
+        return revenue;
+    }
+
+    public void setRevenue(int revenue) {
+        this.revenue = revenue;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
     }
 
     public String getOverview() {
@@ -137,12 +170,20 @@ public class Movie {
         this.popularity = popularity;
     }
 
-    public float getVote_avarage() {
-        return vote_avarage;
+    public float getVote_average() {
+        return vote_average;
     }
 
-    public void setVote_avarage(float vote_avarage) {
-        this.vote_avarage = vote_avarage;
+    public void setVote_average(float vote_average) {
+        this.vote_average = vote_average;
+    }
+
+    public int getVote_count() {
+        return vote_count;
+    }
+
+    public void setVote_count(int vote_count) {
+        this.vote_count = vote_count;
     }
 
     public String getPoster_path() {

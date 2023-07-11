@@ -4,6 +4,7 @@ import com.movies.movie.app.MovieRating.MovieRatingService;
 import com.movies.movie.app.People.Person;
 import com.movies.movie.app.WatchProvider.WatchProvider;
 import com.movies.movie.app.movie.Movie;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
@@ -11,13 +12,87 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
+import org.springframework.stereotype.Service;
+        import org.springframework.web.reactive.function.client.WebClient;
+        import reactor.core.publisher.Mono;
+
+
 @Service
+public class TMDBService {
+    private final String apiKey = "9ee6f04b7a6fbc96f7d61727cf79ddb9"; // replace with your own API Key
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public TMDBService() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    public List<Movie> discoverMovies(Integer genreId, Integer providerId) {
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/discover/movie")
+                .queryParam("api_key", apiKey)
+                .queryParam("with_genres", genreId)
+                .queryParam("watch_region", "IT")
+                .queryParam("with_watch_providers", providerId)
+                .toUriString();
+
+        ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults();
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
+}
+
+
+        /*
+
+
+@Service
+public class TMDBService {
+    private final String apiKey = "9ee6f04b7a6fbc96f7d61727cf79ddb9"; // replace with your own API Key
+    private final WebClient webClient;
+
+    @Autowired
+    public TMDBService() {
+        this.webClient = WebClient.builder().baseUrl("https://api.themoviedb.org/3").build();
+    }
+
+    public Mono<List<Movie>> discoverMovies(Integer genreId, Integer providerId) {
+
+        return this.webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/discover/movie")
+                        .queryParam("api_key", apiKey)
+                        .queryParam("with_genres", genreId)
+                        .queryParam("watch_region", "IT")
+                        .queryParam("with_watch_providers", providerId)
+                        .build())
+                .retrieve()
+                .bodyToMono(MovieListResponse.class)
+                .map(MovieListResponse::getResults);
+    }
+}
+
+*/
+
+
+
+/*
 public class TMDBService {
 
     private final String apiKey = "9ee6f04b7a6fbc96f7d61727cf79ddb9";
@@ -44,7 +119,7 @@ public class TMDBService {
         return restTemplate.getForObject(url, TVSearchResults.class);
     }
 */
-
+/*
     // Function to search for movies by a query string, result in the countrycode language
     public List<Movie> searchMovies(String query, String countrycode) {
         String url = baseUrl + "/search/movie?api_key=" + apiKey + "&query=" + query + "&language=" + countrycode;
@@ -86,7 +161,7 @@ public class TMDBService {
         String url = String.format(baseUrl + "multi/%s?api_key=%s", id, apiKey);
         return restTemplate.getForObject(url, MultiDetails.class);
     }*/
-
+/*
     // Method to retrieve the details of a movie with the given ID
     public List<Movie> getMovieDetails(int movieId, String languagecode) {
         String url = baseUrl + "movie/" + movieId + "?api_key=" + apiKey + "&language=" + languagecode;
@@ -105,7 +180,7 @@ public class TMDBService {
     }*/
 
 
-
+/*
     // Function to get streaming services for a movie or TV show by ID
     //country codes: IT, FR, DE, ES, US, CA, GB, FR, JP, KR, AU
     public List<WatchProvider> getMovieProviders(int movieId, String countryCode) {
@@ -167,3 +242,4 @@ public class TMDBService {
 
 
 }
+*/
