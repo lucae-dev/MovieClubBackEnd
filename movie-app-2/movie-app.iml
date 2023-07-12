@@ -15,7 +15,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
-          <factory-entry name="movie-app" />
+          <factory-entry name="movie-app" value="81d34d72-5608-4fff-85f6-dfc65c167e12" />
         </datasource-mapping>
         <naming-strategy-map />
       </configuration>

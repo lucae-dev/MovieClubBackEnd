@@ -32,6 +32,7 @@ public class EmailService {
     public void sendNiceEmail(String to, String subject, String htmlContent) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom("movieclubconfirm@hotmail.com");
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlContent,true);
