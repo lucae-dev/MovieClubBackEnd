@@ -2,6 +2,7 @@ package com.movies.movie.app.movie;
 
 
 import com.movies.movie.app.MovieRating.MovieRatingService;
+import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +27,29 @@ public class MovieController {
     public String testAuth(){
         return "Fuck ";
     }
-
+/*
     @GetMapping("/discoverMovies")
     public List<Movie> discoverMovies(@RequestParam Integer genreId, @RequestParam Integer providerId){
         return movieService.discoverMovies(genreId, providerId);
+    }*/
+    @GetMapping("/discoverMovies")
+    public List<Movie> discoverMovies(@RequestParam Integer genreId, @RequestParam String providerIds){
+        return movieService.discoverMovies(genreId, providerIds);
     }
+
+    @GetMapping("/movie/providers")
+    public WatchProvidersContainer getProvidersByCountry(@RequestParam Long movieId, @RequestParam String country){
+        return  movieService.getProvidersByCountry(movieId, country);
+    }
+
+
+
+    @GetMapping("/getTrending")
+    public List<Movie> getTrending(){
+        return movieService.getTrendingMovies();
+    }
+
+
 
     @GetMapping("/getAll")
     public List<Movie> getAllMovies(){

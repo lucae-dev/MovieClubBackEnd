@@ -26,6 +26,9 @@ public class Movie {
     private LocalDate release_date;
     @ElementCollection
     private List<Integer> genre_ids;
+    @ElementCollection
+    private List<Integer> provider_ids;
+    @Column(length = 1000)
     private String overview;
     private String description;
     private double totpoints;
@@ -38,6 +41,7 @@ public class Movie {
     private int votes;
     @OneToMany(mappedBy = "movie")
     Set<MovieRating> ratings;
+
 
 
     private int runtime;
@@ -232,5 +236,14 @@ public class Movie {
 
     public void setVotes(int votes) {
         this.votes = votes;
+    }
+
+
+    public List<Integer> getProvider_ids() {
+        return provider_ids;
+    }
+
+    public void setProvider_ids(List<Integer> provider_ids) {
+        this.provider_ids = provider_ids;
     }
 }

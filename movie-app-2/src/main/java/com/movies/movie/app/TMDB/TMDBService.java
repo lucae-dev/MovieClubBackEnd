@@ -3,13 +3,13 @@ package com.movies.movie.app.TMDB;
 import com.movies.movie.app.MovieRating.MovieRatingService;
 import com.movies.movie.app.People.Person;
 import com.movies.movie.app.WatchProvider.WatchProvider;
+import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
 import com.movies.movie.app.movie.Movie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,11 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 import org.springframework.stereotype.Service;
@@ -31,7 +28,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TMDBService {
-    private final String apiKey = "9ee6f04b7a6fbc96f7d61727cf79ddb9"; // replace with your own API Key
+    private final String apiKey = "e80f5ca655662e773cd9e67c26cb8c72"; // replace with your own API Key
+    private final String authToken = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZWU2ZjA0YjdhNmZiYzk2ZjdkNjE3MjdjZjc5ZGRiOSIsInN1YiI6IjYzZjdkODY0ZDFjYTJhMDBhYWQ4Mzg2OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.YGgc4gXk18N_pMKPiRpyBgbl0YEtqgjqWvhwwDCtmUY";
     private final RestTemplate restTemplate;
 
     @Autowired
@@ -56,7 +54,81 @@ public class TMDBService {
             throw new RuntimeException("Failed to fetch movies");
         }
     }
+
+
+    public List<Movie> discoverMovies(Integer genreId, String providerIds) {
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/discover/movie")
+                .queryParam("api_key", apiKey)
+                .queryParam("with_genres", genreId)
+                .queryParam("watch_region", "IT")
+                .queryParam("with_watch_providers", providerIds)
+                .toUriString();
+
+        ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults();
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
+
+
+    public List<Movie> getTrendingMovies() {
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/trending/movie/day")
+                .queryParam("api_key", apiKey)
+                .queryParam("language", "en-US")
+                .toUriString();
+
+        ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults();
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
+
+
+
+    public List<WatchProvidersContainer> getMovieWatchProvidersAll(Long movieId) {
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/movie/"+ movieId +"/watch/providers")
+                .queryParam("api_key", apiKey)
+                .toUriString();
+
+        ResponseEntity<WatchProviderResponse> responseEntity = restTemplate.getForEntity(uri, WatchProviderResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults().values().stream().toList();
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
+
+    public WatchProvidersContainer getMovieWatchProvidersCountry(Long movieId, String country) {
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/movie/"+ movieId +"/watch/providers")
+                .queryParam("api_key", apiKey)
+                .toUriString();
+
+        ResponseEntity<WatchProviderResponse> responseEntity = restTemplate.getForEntity(uri, WatchProviderResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults().get(country);
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
+
+
 }
+
+
+
+
 
 
         /*

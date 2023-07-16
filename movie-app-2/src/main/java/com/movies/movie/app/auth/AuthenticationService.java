@@ -43,11 +43,11 @@ public class AuthenticationService {
         //String confirmmsg = "Hi " + user.getUsername() + ", thank you for registering to MovieClub. Click this link to confirm: " + thisUrl +"/confirmRegistration?token=" + jwtToken + ".";
         // send confirmation email!
         HtmlContent htmlContent = new HtmlContent(thisUrl+"/confirmRegistration?token=" + jwtToken, user.getUsername());
-        try {
+       /* try {
             emailService.sendNiceEmail(user.getEmail(), "MovieClub registration", htmlContent.getHtmlContent());
         } catch (MessagingException e) {
             e.printStackTrace();
-        }
+        }*/
         //emailService.sendSimpleEmail(user.getEmail(), "MovieClub registration", confirmmsg );
 
 
