@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,16 @@ public class UserService {
         } else {
             throw new Exception("No user has logged in");
         }
+    }
+
+    public List<Integer> setProviders(User user, List<Integer> provIds){
+        user.setProviderIds(provIds);
+        userRepository.save(user);
+        return user.getProviderIds();
+    }
+
+    public List<Integer> getProviders(User user) {
+        return user.getProviderIds();
     }
 
 

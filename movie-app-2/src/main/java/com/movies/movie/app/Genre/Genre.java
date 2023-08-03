@@ -9,14 +9,10 @@ public class Genre {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    private String description;
+    private String name;
+
 
     public Genre() {
-    }
-
-    public Genre(int id, String description) {
-        this.id = id;
-        this.description = description;
     }
 
     public int getId() {
@@ -27,11 +23,11 @@ public class Genre {
         this.id = id;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setName(String name) {
+        this.name = name;
     }
 }

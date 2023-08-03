@@ -35,6 +35,8 @@ public class User implements UserDetails {
     private Role role;
     private boolean locked = false;
     private boolean verified =  false;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Integer> providerIds;
     // birthday !! Important for recommendations
     @NotNull(message = "email is required to register")
     private String email;

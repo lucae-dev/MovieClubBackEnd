@@ -1,4 +1,5 @@
 package com.movies.movie.app.TMDB;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.movies.movie.app.MovieRating.MovieRatingService;
 import com.movies.movie.app.People.Person;
@@ -37,6 +38,7 @@ public class TMDBService {
         this.restTemplate = new RestTemplate();
     }
 
+    /*
     public List<Movie> discoverMovies(Integer genreId, Integer providerId) {
         String uri = UriComponentsBuilder
                 .fromHttpUrl("https://api.themoviedb.org/3/discover/movie")
@@ -53,18 +55,21 @@ public class TMDBService {
         } else {
             throw new RuntimeException("Failed to fetch movies");
         }
-    }
+    }*/
 
 
     public List<Movie> discoverMovies(Integer genreId, String providerIds) {
+        final String watch_region = "IT";
+        final String language = "it-IT";
         String uri = UriComponentsBuilder
                 .fromHttpUrl("https://api.themoviedb.org/3/discover/movie")
                 .queryParam("api_key", apiKey)
                 .queryParam("with_genres", genreId)
-                .queryParam("watch_region", "IT")
-                .queryParam("with_watch_providers", providerIds)
+                .queryParam("language", language)
+                .queryParam("watch_region", watch_region)
                 .toUriString();
-
+        uri +="&with_watch_providers=" + providerIds;
+        System.out.println(uri);
         ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
 
         if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
@@ -79,7 +84,7 @@ public class TMDBService {
         String uri = UriComponentsBuilder
                 .fromHttpUrl("https://api.themoviedb.org/3/trending/movie/day")
                 .queryParam("api_key", apiKey)
-                .queryParam("language", "en-US")
+                .queryParam("language", "it-IT")
                 .toUriString();
 
         ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
@@ -91,6 +96,22 @@ public class TMDBService {
         }
     }
 
+    public Movie getMovieDetails(Long movieId, String language){
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/movie/"+ movieId )
+                .queryParam("api_key", apiKey)
+                .queryParam("language", language)
+                .toUriString();
+
+        System.out.println(uri);
+        ResponseEntity<Movie> responseEntity = restTemplate.getForEntity(uri, Movie.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody();
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
 
 
     public List<WatchProvidersContainer> getMovieWatchProvidersAll(Long movieId) {
@@ -100,9 +121,25 @@ public class TMDBService {
                 .toUriString();
 
         ResponseEntity<WatchProviderResponse> responseEntity = restTemplate.getForEntity(uri, WatchProviderResponse.class);
-
         if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
             return responseEntity.getBody().getResults().values().stream().toList();
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
+
+    public List<Movie> getMovieRecommendations(Long movieId, String language, int page) {
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/movie/"+ movieId +"/recommendations")
+                .queryParam("api_key", apiKey)
+                .queryParam("language", language)
+                .queryParam("page", page)
+                .toUriString();
+
+        ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults();
         } else {
             throw new RuntimeException("Failed to fetch movies");
         }
@@ -117,7 +154,13 @@ public class TMDBService {
         ResponseEntity<WatchProviderResponse> responseEntity = restTemplate.getForEntity(uri, WatchProviderResponse.class);
 
         if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
-            return responseEntity.getBody().getResults().get(country);
+            Map<String, WatchProvidersContainer> results = responseEntity.getBody().getResults();
+            if(results.containsKey(country)) {
+                return results.get(country);
+            } else {
+                //("Country " + country + " not found in the results map");
+                return null;
+            }
         } else {
             throw new RuntimeException("Failed to fetch movies");
         }

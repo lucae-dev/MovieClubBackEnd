@@ -19,15 +19,21 @@ public class Movie {
     private Long movie_id;
     private Long id;
     //langauge of the movie caracteristics ()
-    private String language;
+    private String original_language;
 
     @NotNull(message = "title is required")
     private String title;
     private LocalDate release_date;
+    @Transient
+    private List<Genre> genres;
     @ElementCollection
     private List<Integer> genre_ids;
     @ElementCollection
-    private List<Integer> provider_ids;
+    private List<Integer> streaming_ids;
+    @ElementCollection
+    private List<Integer> rent_ids;
+    @ElementCollection
+    private List<Integer> buy_ids;
     @Column(length = 1000)
     private String overview;
     private String description;
@@ -78,6 +84,14 @@ public class Movie {
         votes=0;
     }
 
+    public List<Genre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
+    }
+
     public Long getId() {
         return id;
     }
@@ -102,12 +116,12 @@ public class Movie {
         this.movie_id = movie_id;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getOriginal_language() {
+        return original_language;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public void setOriginal_language(String original_language) {
+        this.original_language = original_language;
     }
 
     public LocalDate getRelease_date() {
@@ -239,11 +253,27 @@ public class Movie {
     }
 
 
-    public List<Integer> getProvider_ids() {
-        return provider_ids;
+    public List<Integer> getStreaming_ids() {
+        return streaming_ids;
     }
 
-    public void setProvider_ids(List<Integer> provider_ids) {
-        this.provider_ids = provider_ids;
+    public void setStreaming_ids(List<Integer> streaming_ids) {
+        this.streaming_ids = streaming_ids;
+    }
+
+    public List<Integer> getRent_ids() {
+        return rent_ids;
+    }
+
+    public void setRent_ids(List<Integer> rent_ids) {
+        this.rent_ids = rent_ids;
+    }
+
+    public List<Integer> getBuy_ids() {
+        return buy_ids;
+    }
+
+    public void setBuy_ids(List<Integer> buy_ids) {
+        this.buy_ids = buy_ids;
     }
 }

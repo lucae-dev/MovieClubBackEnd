@@ -42,7 +42,15 @@ public class MovieController {
         return  movieService.getProvidersByCountry(movieId, country);
     }
 
+    @GetMapping("/movie")
+    public Movie getMovieDetails(@RequestParam Long movieId, @RequestParam String language){
+        return movieService.getMovieDetails(movieId, language);
+    }
 
+    @GetMapping("/movie/getRecommendations")
+    public List<Movie> getMovieRecommendations(@RequestParam Long movieId, @RequestParam String language, @RequestParam int page){
+        return movieService.getMovieRecommendations(movieId, language, page);
+    }
 
     @GetMapping("/getTrending")
     public List<Movie> getTrending(){

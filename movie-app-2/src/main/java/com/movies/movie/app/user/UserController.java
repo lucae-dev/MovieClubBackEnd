@@ -4,11 +4,10 @@ package com.movies.movie.app.user;
 import com.movies.movie.app.MovieRating.MovieRating;
 import com.movies.movie.app.MovieRating.MovieRatingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -20,6 +19,17 @@ public class UserController {
 
     @Autowired
     public MovieRatingService movieRatingService;
+
+    @PostMapping(path = "/setProviders")
+    public List<Integer> setProviderIds(@AuthenticationPrincipal User user, @RequestBody List<Integer> providerIds){
+        return userService.setProviders(user,providerIds);
+    }
+
+    @GetMapping(path = "/getProviders")
+    public List<Integer> getProviderIds(@AuthenticationPrincipal User user){
+        return userService.getProviders(user);
+    }
+
 
     /*@GetMapping("/savedMovies")
     public Set<MovieRating> getSavedMovies(@RequestParam(required = true) Long user_id){
