@@ -1,5 +1,8 @@
 package com.movies.movie.app.MovieCollection;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.user.User;
 import jakarta.persistence.*;
@@ -9,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "collection")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class MovieCollection {
 
     @Id
@@ -19,6 +23,7 @@ public class MovieCollection {
 
     @ManyToOne
     @JoinColumn(name="user_id")
+    @JsonIgnore
     private User owner;
 
     private boolean visible;
@@ -27,13 +32,13 @@ public class MovieCollection {
     private LocalDate creation_date;
 
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "collection_movies",
             joinColumns = @JoinColumn(name = "collection_id"),
             inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private List<Movie> movies;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "followedCollections")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "followedCollections")
     private List<User> followers;
 
 

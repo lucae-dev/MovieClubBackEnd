@@ -1,7 +1,9 @@
 package com.movies.movie.app.user;
 
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.movies.movie.app.MovieCollection.MovieCollection;
 import com.movies.movie.app.MovieRating.MovieRating;
 import jakarta.persistence.*;
@@ -21,6 +23,7 @@ import java.util.*;
 @Builder
 @Entity
 @Table(name = "_user")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User implements UserDetails {
 
     @Id

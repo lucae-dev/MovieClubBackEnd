@@ -24,7 +24,6 @@ public class UserService {
 
 
 
-    public void
 
 /*
     public Set<MovieRating> getRatedMovies(Long userId){
