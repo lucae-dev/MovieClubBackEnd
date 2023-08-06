@@ -19,9 +19,6 @@ public class MovieComment {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Movie movie;
-
     private String comment;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -42,7 +39,6 @@ public class MovieComment {
     public MovieComment(Long id, User user, Movie movie, String comment, Integer likes) {
         this.id = id;
         this.user = user;
-        this.movie = movie;
         this.comment = comment;
         this.likes = likes;
     }
@@ -50,7 +46,6 @@ public class MovieComment {
     public MovieComment(User user, Movie movie, String comment, Integer likes) {
 
         this.user = user;
-        this.movie = movie;
         this.comment = comment;
         this.likes = likes;
     }
@@ -71,13 +66,6 @@ public class MovieComment {
         this.user = user;
     }
 
-    public Movie getMovie() {
-        return movie;
-    }
-
-    public void setMovie(Movie movie) {
-        this.movie = movie;
-    }
 
     public String getComment() {
         return comment;

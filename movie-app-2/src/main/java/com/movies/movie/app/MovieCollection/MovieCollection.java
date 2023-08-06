@@ -4,6 +4,7 @@ import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.user.User;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -17,21 +18,24 @@ public class MovieCollection {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "owner")
+    @JoinColumn(name="user_id")
     private User owner;
 
     private boolean visible;
 
-    private String Description;
+    private String description;
+    private LocalDate creation_date;
 
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "collection_movies",
             joinColumns = @JoinColumn(name = "collection_id"),
             inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private List<Movie> movies;
 
-    @ManyToMany(mappedBy = "savCollections")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "followedCollections")
     private List<User> followers;
+
 
     private int followCount;
 
@@ -39,8 +43,9 @@ public class MovieCollection {
     public MovieCollection() {
     }
 
-    public MovieCollection(String name, User owner) {
+    public MovieCollection(String name,String description, User owner) {
         this.name = name;
+        this.description = description;
         this.owner = owner;
     }
 
@@ -79,11 +84,11 @@ public class MovieCollection {
     }
 
     public String getDescription() {
-        return Description;
+        return description;
     }
 
     public void setDescription(String description) {
-        Description = description;
+        this.description = description;
     }
 
     public List<Movie> getMovies() {
@@ -110,5 +115,13 @@ public class MovieCollection {
 
     public void setFollowCount(int followCount) {
         this.followCount = followCount;
+    }
+
+    public LocalDate getCreation_date() {
+        return creation_date;
+    }
+
+    public void setCreation_date(LocalDate creation_date) {
+        this.creation_date = creation_date;
     }
 }

@@ -1,7 +1,8 @@
 package com.movies.movie.app.MovieRating;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import com.movies.movie.app.movie.Movie;
+import com.movies.movie.app.user.User;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -9,46 +10,37 @@ import java.util.Objects;
 @Embeddable
 public class MovieRatingKey implements Serializable {
 
-    @Column(name = "user_id")
-    Long userId;
 
-    @Column(name = "movie_id")
-    Long movieId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movie_id")
+    private Movie movie;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public MovieRatingKey() {
     }
 
-    public MovieRatingKey(Long userId, Long movieId) {
-        this.userId = userId;
-        this.movieId = movieId;
+    public MovieRatingKey(User user, Movie movie) {
+        this.user = user;
+        this.movie = movie;
     }
 
-    public Long getUserId() {
-        return userId;
+
+    public Movie getMovie() {
+        return movie;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setMovie(Movie movie) {
+        this.movie = movie;
     }
 
-    public Long getMovieId() {
-        return movieId;
+    public User getUser() {
+        return user;
     }
 
-    public void setMovieId(Long movieId) {
-        this.movieId = movieId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MovieRatingKey that = (MovieRatingKey) o;
-        return Objects.equals(userId, that.userId) && Objects.equals(movieId, that.movieId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(userId, movieId);
+    public void setUser(User user) {
+        this.user = user;
     }
 }

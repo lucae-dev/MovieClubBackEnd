@@ -14,10 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -42,19 +39,19 @@ public class User implements UserDetails {
     private String email;
     private String propic;
     //Firebase token for notifications !!!!!!!
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+   /* @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     Set<MovieRating> movieRatings;
-
+*/
     //@OneToMany(mappedBy = )
     //movie comments
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_followers",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "follower_id"))
     private Set<User> followers;
 
-    @ManyToMany(mappedBy = "followers",cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "followers", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<User> following;
 
@@ -63,18 +60,24 @@ public class User implements UserDetails {
     //incremented by triggers in database whenever a user starts to follow another one
     private int following_count;
 
-    @OneToMany(mappedBy = "owner",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<MovieCollection> myCollections;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "seen_collection")
+    private MovieCollection seenCollection;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "to_see")
+    private MovieCollection toBeSeenCollection;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "liked_collection")
+    private MovieCollection likedCollection;
 
-    //"Followed collections"
-    @ManyToMany
-    @JoinTable(name = "user_saved_coll",
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MovieCollection> myCollections=new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_followed_collections",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "collection_id"))
-    private List<User> savCollections;
-
+    private List<MovieCollection> followedCollections = new ArrayList<>();
 
     //this one has to be incremented in service, with a trigger there would be an if statement for every movie added in a collection
     private int seen;
@@ -89,12 +92,111 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    public User(Long id, String username, String email, String propic, Set<MovieRating> movieratings) {
+    public User(Long id, String username, String email, String propic) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.propic = propic;
-        this.movieRatings = movieratings;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
+
+
+
+
+
+    public List<Integer> getProviderIds() {
+        return providerIds;
+    }
+
+    public void setProviderIds(List<Integer> providerIds) {
+        this.providerIds = providerIds;
+    }
+
+
+
+    public Set<User> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Set<User> followers) {
+        this.followers = followers;
+    }
+
+    public Set<User> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(Set<User> following) {
+        this.following = following;
+    }
+
+    public int getFollowers_count() {
+        return followers_count;
+    }
+
+    public void setFollowers_count(int followers_count) {
+        this.followers_count = followers_count;
+    }
+
+    public int getFollowing_count() {
+        return following_count;
+    }
+
+    public void setFollowing_count(int following_count) {
+        this.following_count = following_count;
+    }
+
+    public MovieCollection getSeenCollection() {
+        return seenCollection;
+    }
+
+    public void setSeenCollection(MovieCollection seenCollection) {
+        this.seenCollection = seenCollection;
+    }
+
+    public MovieCollection getToBeSeenCollection() {
+        return toBeSeenCollection;
+    }
+
+    public void setToBeSeenCollection(MovieCollection toBeSeenCollection) {
+        this.toBeSeenCollection = toBeSeenCollection;
+    }
+
+    public MovieCollection getLikedCollection() {
+        return likedCollection;
+    }
+
+    public void setLikedCollection(MovieCollection likedCollection) {
+        this.likedCollection = likedCollection;
+    }
+
+    public List<MovieCollection> getMyCollections() {
+        return myCollections;
+    }
+
+    public void setMyCollections(List<MovieCollection> myCollections) {
+        this.myCollections = myCollections;
+    }
+
+    public List<MovieCollection> getFollowedCollections() {
+        return followedCollections;
+    }
+
+    public void setFollowedCollections(List<MovieCollection> followedCollections) {
+        this.followedCollections = followedCollections;
+    }
+
+    public int getSeen() {
+        return seen;
+    }
+
+    public void setSeen(int seen) {
+        this.seen = seen;
     }
 
     public Long getId() {
@@ -159,11 +261,5 @@ public class User implements UserDetails {
         this.propic = propic;
     }
 
-    public Set<MovieRating> getRatedMovies() {
-        return movieRatings;
-    }
 
-    public void setMovies(Set<MovieRating> movieratings) {
-        this.movieRatings = movieratings;
-    }
 }

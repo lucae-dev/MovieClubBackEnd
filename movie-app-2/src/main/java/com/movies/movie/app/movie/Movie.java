@@ -45,8 +45,7 @@ public class Movie {
     private String poster_path;
     private String backdrop_path;
     private int votes;
-    @OneToMany(mappedBy = "movie")
-    Set<MovieRating> ratings;
+
 
 
 
@@ -220,13 +219,6 @@ public class Movie {
         this.backdrop_path = backdrop_path;
     }
 
-    public Set<MovieRating> getRatings() {
-        return ratings;
-    }
-
-    public void setRatings(Set<MovieRating> ratings) {
-        this.ratings = ratings;
-    }
 
     public String getDescription() {
         return description;

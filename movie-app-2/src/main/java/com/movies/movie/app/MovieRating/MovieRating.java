@@ -16,22 +16,12 @@ import java.util.List;
 public class MovieRating {
 
     @EmbeddedId
-    MovieRatingKey id;
+    private MovieRatingKey id;
 
-    @ManyToOne
-    @MapsId("userId")
-    @JsonIgnore
-    @JoinColumn(name = "user_id")
-    User user;
-
-    @ManyToOne
-    @MapsId("movieId")
-    @JsonIgnore
-    @JoinColumn(name = "movie_id")
-    Movie movie;
+    private String mainComment;
 
     @OneToMany(mappedBy = "movieRating")
-    List<MovieComment> comments;
+    private List<MovieComment> comments;
 
     private boolean seen;
 
@@ -39,48 +29,26 @@ public class MovieRating {
     @DecimalMin(value = "0", message = "min rating for a movie is 0")
     private float rating;
 
+    private Boolean liked;
 
     public MovieRating() {
     }
 
-    public MovieRating(MovieRatingKey id, User user, Movie movie, boolean seen, float rating, String comment) {
+    public MovieRating(User user, Movie movie) {
+        MovieRatingKey movieRatingKey = new MovieRatingKey(user,movie);
         this.id = id;
-        this.user = user;
-        this.movie = movie;
-        this.seen = seen;
-        this.rating = rating;
     }
-
-
 
     public MovieRatingKey getId() {
         return id;
-    }
-
-    public MovieRating( User user, Movie movie) {
-        this.id = new MovieRatingKey(user.getId(), movie.getId());
-        this.user = user;
-        this.movie = movie;
     }
 
     public void setId(MovieRatingKey id) {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Movie getMovie() {
-        return movie;
-    }
-
-    public void setMovie(Movie movie) {
-        this.movie = movie;
+    public void setComments(List<MovieComment> comments) {
+        this.comments = comments;
     }
 
     public boolean isSeen() {
@@ -97,6 +65,22 @@ public class MovieRating {
 
     public void setRating(float rating) {
         this.rating = rating;
+    }
+
+    public Boolean getLiked() {
+        return liked;
+    }
+
+    public void setLiked(Boolean liked) {
+        this.liked = liked;
+    }
+
+    public String getMainComment() {
+        return mainComment;
+    }
+
+    public void setMainComment(String mainComment) {
+        this.mainComment = mainComment;
     }
 
     public List<MovieComment> getComments() {

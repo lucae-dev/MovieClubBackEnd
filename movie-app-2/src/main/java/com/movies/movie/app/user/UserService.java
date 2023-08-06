@@ -24,7 +24,9 @@ public class UserService {
 
 
 
+    public void
 
+/*
     public Set<MovieRating> getRatedMovies(Long userId){
         return  userRepository.findById(userId).get().getRatedMovies();
     }
@@ -40,10 +42,11 @@ public class UserService {
             throw new Exception("No user has logged in");
         }
     }
-
+*/
     public List<Integer> setProviders(User user, List<Integer> provIds){
         user.setProviderIds(provIds);
         userRepository.save(user);
+        userRepository.flush();
         return user.getProviderIds();
     }
 

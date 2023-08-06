@@ -2,6 +2,7 @@ package com.movies.movie.app.auth;
 import com.movies.movie.app.Config.JwtService;
 import com.movies.movie.app.Mail.EmailService;
 import com.movies.movie.app.Mail.HtmlContent;
+import com.movies.movie.app.MovieCollection.MovieCollection;
 import com.movies.movie.app.Token.Token;
 import com.movies.movie.app.Token.TokenRepository;
 import com.movies.movie.app.Token.TokenType;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 
 
 @Service
@@ -31,13 +33,35 @@ public class AuthenticationService {
     String thisUrl = "http://localhost:9191/api/v1/auth";
 
     public AuthenticationResponse register(RegisterRequest request) {
-        var user = User.builder()
+        var user2 = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
+        var user = repository.save(user2);
+
+
+        MovieCollection seenCollection = new MovieCollection();
+        seenCollection.setName("Seen");
+        seenCollection.setCreation_date(LocalDate.now());
+        seenCollection.setOwner(user);
+        user.setSeenCollection(seenCollection);
+
+        MovieCollection toBeSeenCollection = new MovieCollection();
+        toBeSeenCollection.setName("To Be Seen");
+        toBeSeenCollection.setCreation_date(LocalDate.now());
+        toBeSeenCollection.setOwner(user);
+        user.setToBeSeenCollection(toBeSeenCollection);
+
+        MovieCollection likedCollection = new MovieCollection();
+        likedCollection.setCreation_date(LocalDate.now());
+        likedCollection.setName("Liked");
+        likedCollection.setOwner(user);
+        user.setLikedCollection(likedCollection);
+
         var savedUser = repository.save(user);
+
         var jwtToken = jwtService.generateToken(user);
         saveUserToken(savedUser, jwtToken);
         //String confirmmsg = "Hi " + user.getUsername() + ", thank you for registering to MovieClub. Click this link to confirm: " + thisUrl +"/confirmRegistration?token=" + jwtToken + ".";

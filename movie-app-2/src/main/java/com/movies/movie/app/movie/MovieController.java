@@ -3,8 +3,10 @@ package com.movies.movie.app.movie;
 
 import com.movies.movie.app.MovieRating.MovieRatingService;
 import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
+import com.movies.movie.app.user.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -69,28 +71,30 @@ public class MovieController {
         return movieRepository.save(movie);
     }
 
+    /*
     @PostMapping(value = "/like")
-    public void likeMovie(@RequestParam Long userId, @RequestParam Long movieId){
+    public void likeMovie(@AuthenticationPrincipal User user, @RequestParam Long movieId){
         //user va preso con
         //var user = repository.findByUsername(jwtService.extractUsername(token.getToken())).orElseThrow();
         //non serve
-        movieRatingService.addMovie(userId,movieId);
-    }
+        movieRatingService.likeMovie(user,movieId);
+    }*/
 
     @PutMapping(value = "/rate")
-    public void rateMovie(@RequestParam Long userId, @RequestParam Long movieId, @RequestParam float rate){
-        movieRatingService.rate(userId,movieId,rate);
+    public void rateMovie(@AuthenticationPrincipal User user, @RequestParam Long movieId, @RequestParam float rate){
+        movieRatingService.rate(user,movieId,rate);
     }
 
     @PutMapping(value = "/comment")
-    public void commentMovie(@RequestParam Long userId, @RequestParam Long movieId, @RequestParam String comment){
-        movieRatingService.comment(userId,movieId,comment);
+    public void commentMovie(@AuthenticationPrincipal User user, @RequestParam Long movieId, @RequestParam String comment){
+        movieRatingService.comment(user,movieId,comment);
     }
 
+    /*
     @PutMapping(value = "/markSeen")
-    public void markSeenMovie(@RequestParam Long userId, @RequestParam Long movieId){
-        movieRatingService.markSeen(userId,movieId);
-    }
+    public void markSeenMovie(@AuthenticationPrincipal User user, @RequestParam Long movieId){
+        movieRatingService.markSeen(user,movieId);
+    }*/
 
 
 }

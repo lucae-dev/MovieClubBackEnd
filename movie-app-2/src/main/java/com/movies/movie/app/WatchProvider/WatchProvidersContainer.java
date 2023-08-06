@@ -31,27 +31,27 @@ public class WatchProvidersContainer {
         this.link = link;
     }
 
-    public List<com.movies.movie.app.WatchProvider.WatchProvider> getFlatrate() {
+    public List<WatchProvider> getFlatrate() {
         return flatrate;
     }
 
-    public void setFlatrate(List<com.movies.movie.app.WatchProvider.WatchProvider> flatrate) {
+    public void setFlatrate(List<WatchProvider> flatrate) {
         this.flatrate = flatrate;
     }
 
-    public List<com.movies.movie.app.WatchProvider.WatchProvider> getRent() {
+    public List<WatchProvider> getRent() {
         return rent;
     }
 
-    public void setRent(List<com.movies.movie.app.WatchProvider.WatchProvider> rent) {
+    public void setRent(List<WatchProvider> rent) {
         this.rent = rent;
     }
 
-    public List<com.movies.movie.app.WatchProvider.WatchProvider> getBuy() {
+    public List<WatchProvider> getBuy() {
         return buy;
     }
 
-    public void setBuy(List<com.movies.movie.app.WatchProvider.WatchProvider> buy) {
+    public void setBuy(List<WatchProvider> buy) {
         this.buy = buy;
     }
 }
