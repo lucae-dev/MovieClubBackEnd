@@ -8,6 +8,7 @@ import com.movies.movie.app.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -29,7 +30,7 @@ public class MovieCollection {
     private boolean visible;
 
     private String description;
-    private LocalDate creation_date;
+    private LocalDateTime creation_date;
 
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -122,11 +123,11 @@ public class MovieCollection {
         this.followCount = followCount;
     }
 
-    public LocalDate getCreation_date() {
+    public LocalDateTime getCreation_date() {
         return creation_date;
     }
 
-    public void setCreation_date(LocalDate creation_date) {
+    public void setCreation_date(LocalDateTime creation_date) {
         this.creation_date = creation_date;
     }
 }

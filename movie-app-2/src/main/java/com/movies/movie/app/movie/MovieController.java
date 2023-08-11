@@ -35,8 +35,8 @@ public class MovieController {
         return movieService.discoverMovies(genreId, providerId);
     }*/
     @GetMapping("/discoverMovies")
-    public List<Movie> discoverMovies(@RequestParam Integer genreId, @RequestParam String providerIds){
-        return movieService.discoverMovies(genreId, providerIds);
+    public List<MovieDTO> discoverMovies(@AuthenticationPrincipal User user,@RequestParam Integer genreId, @RequestParam String providerIds){
+        return movieService.discoverMovies(user,genreId, providerIds);
     }
 
     @GetMapping("/movie/providers")

@@ -27,9 +27,14 @@ public class UserController {
 
     @GetMapping(path = "/getProviders")
     public List<Integer> getProviderIds(@AuthenticationPrincipal User user){
+
         return userService.getProviders(user);
     }
 
+    @GetMapping(path="/getLikedId")
+    public List<Long>  getLikedIds(@AuthenticationPrincipal User user){
+        return userService.getLikedIds(user);
+    }
 
     /*@GetMapping("/savedMovies")
     public Set<MovieRating> getSavedMovies(@RequestParam(required = true) Long user_id){

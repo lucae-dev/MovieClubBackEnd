@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Service
@@ -33,29 +34,30 @@ public class AuthenticationService {
     String thisUrl = "http://localhost:9191/api/v1/auth";
 
     public AuthenticationResponse register(RegisterRequest request) {
+
         var user2 = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
-        var user = repository.save(user2);
 
+        var user = repository.save(user2);
 
         MovieCollection seenCollection = new MovieCollection();
         seenCollection.setName("Seen");
-        seenCollection.setCreation_date(LocalDate.now());
+        seenCollection.setCreation_date(LocalDateTime.now());
         seenCollection.setOwner(user);
         user.setSeenCollection(seenCollection);
 
         MovieCollection toBeSeenCollection = new MovieCollection();
         toBeSeenCollection.setName("To Be Seen");
-        toBeSeenCollection.setCreation_date(LocalDate.now());
+        toBeSeenCollection.setCreation_date(LocalDateTime.now());
         toBeSeenCollection.setOwner(user);
         user.setToBeSeenCollection(toBeSeenCollection);
 
         MovieCollection likedCollection = new MovieCollection();
-        likedCollection.setCreation_date(LocalDate.now());
+        likedCollection.setCreation_date(LocalDateTime.now());
         likedCollection.setName("Liked");
         likedCollection.setOwner(user);
         user.setLikedCollection(likedCollection);
