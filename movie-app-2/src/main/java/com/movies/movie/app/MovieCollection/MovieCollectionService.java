@@ -295,6 +295,20 @@ public class MovieCollectionService {
 
     }
 
+
+
+    public MovieCollectionDTO setDescription(User user2, Long id, String description) {
+
+       User user=  userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("Collection not found"));
+       MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(()->new IllegalStateException("Collection not found"));
+       if(user.getId()==movieCollection.getOwner().getId()){
+           movieCollection.setDescription(description);
+       }
+      return convertToDTO(movieCollectionRepository.save(movieCollection));
+
+
+    }
+
     public Boolean removeMovie(User user, Long id, Movie movie) {
 
         MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));

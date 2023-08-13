@@ -20,6 +20,18 @@ public class UserController {
     @Autowired
     public MovieRatingService movieRatingService;
 
+
+    @PutMapping(path = "{id}/follow")
+    public boolean followUser(@AuthenticationPrincipal User followerUser, @PathVariable Long followedId){
+        return userService.follow(followerUser,followedId);
+    }
+
+    @PostMapping(path = "/setBio")
+    public String followUser(@AuthenticationPrincipal User user,@RequestBody String bio){
+        return userService.setDescription(user, bio);
+    }
+
+
     @PostMapping(path = "/setProviders")
     public List<Integer> setProviderIds(@AuthenticationPrincipal User user, @RequestBody List<Integer> providerIds){
         return userService.setProviders(user,providerIds);

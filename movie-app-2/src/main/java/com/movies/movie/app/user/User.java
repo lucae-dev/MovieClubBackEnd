@@ -61,6 +61,8 @@ public class User implements UserDetails {
     @JsonIgnore
     private Set<User> following;
 
+    private String biography;
+
     //incremented by triggers in database whenever a user gets a new follower
     private int followers_count;
     //incremented by triggers in database whenever a user starts to follow another one
@@ -110,10 +112,13 @@ public class User implements UserDetails {
     }
 
 
+    public String getBiography() {
+        return biography;
+    }
 
-
-
-
+    public void setBiography(String biography) {
+        this.biography = biography;
+    }
 
     public List<Integer> getProviderIds() {
         return providerIds;

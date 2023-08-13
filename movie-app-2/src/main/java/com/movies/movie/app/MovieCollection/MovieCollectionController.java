@@ -57,6 +57,11 @@ public class MovieCollectionController {
         return movieCollectionService.addMovies(user, id, movies);
     }
 
+    @PostMapping("/{id}/setDescription")
+    public MovieCollectionDTO setDescription(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody String description) {
+        return movieCollectionService.setDescription(user, id, description);
+    }
+
     @PostMapping("/{id}/removeMovie")
     public Boolean removeMovie(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody Movie movie) {
         return movieCollectionService.removeMovie(user, id, movie);

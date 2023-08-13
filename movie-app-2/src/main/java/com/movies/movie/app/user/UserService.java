@@ -44,6 +44,27 @@ public class UserService {
         }
     }
 */
+
+    public boolean follow(User user2, Long followed_id){
+       User followed_user = userRepository.findById(followed_id).orElseThrow(()-> new IllegalStateException("User not found"));
+       User follower_user = userRepository.findById(user2.getId()).orElseThrow(()-> new IllegalStateException("User not found"));
+
+       followed_user.getFollowers().add(follower_user);
+       userRepository.saveAndFlush(followed_user);
+
+       return follower_user.getFollowers().contains(followed_user);
+
+    }
+
+
+    public String setDescription(User user, String description){
+        user.setBiography(description);
+        userRepository.save(user);
+
+        return user.getBiography();
+
+    }
+
     public List<Integer> setProviders(User user, List<Integer> provIds){
         user.setProviderIds(provIds);
         userRepository.save(user);
