@@ -48,18 +48,22 @@ public class AuthenticationService {
         seenCollection.setName("Seen");
         seenCollection.setCreation_date(LocalDateTime.now());
         seenCollection.setOwner(user);
+        seenCollection.setVisible(Boolean.TRUE);
         user.setSeenCollection(seenCollection);
+        user.setPropic("https://picsum.photos/seed/"+user.getUsername() +"/300/300");
 
         MovieCollection toBeSeenCollection = new MovieCollection();
         toBeSeenCollection.setName("To Be Seen");
         toBeSeenCollection.setCreation_date(LocalDateTime.now());
         toBeSeenCollection.setOwner(user);
+        toBeSeenCollection.setVisible(Boolean.TRUE);
         user.setToBeSeenCollection(toBeSeenCollection);
 
         MovieCollection likedCollection = new MovieCollection();
         likedCollection.setCreation_date(LocalDateTime.now());
         likedCollection.setName("Liked");
         likedCollection.setOwner(user);
+        likedCollection.setVisible(Boolean.TRUE);
         user.setLikedCollection(likedCollection);
 
         var savedUser = repository.save(user);

@@ -6,7 +6,9 @@ import com.movies.movie.app.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
 
+import java.net.URLDecoder;
 import java.util.List;
 
 @RestController
@@ -83,9 +85,17 @@ public class MovieCollectionController {
         return movieCollectionService.getMyCollections(user);
     }
 
+
+
+
     @GetMapping("/myCollectionsIsMoviePresent")
     public List<MovieCollectionDTO> getMyCollectionsIsMoviePresent(@AuthenticationPrincipal User user, @RequestParam Long movieId) {
         return movieCollectionService.getMyCollectionsIsMoviePresent(user,movieId);
+    }
+
+    @GetMapping("/UserCollections")
+    public List<MovieCollectionDTO> getUserCollections(@AuthenticationPrincipal User userMain, @RequestParam Long userId) {
+        return movieCollectionService.getUserCollections(userMain, userId);
     }
 
     @GetMapping("/savedCollections")
@@ -101,6 +111,11 @@ public class MovieCollectionController {
 
     @GetMapping("/getMovies")
     public List<MovieDTO> getMoviesFromColl(@AuthenticationPrincipal User user, @RequestParam Long id, @RequestParam String language){
-        return movieCollectionService.getCollectionMovies(user,id, language);
+        return movieCollectionService.getCollectionMovies(user,id, UriUtils.decode(language, "UTF-8"));
+    }
+
+    @GetMapping("/getSeen")
+    public List<MovieDTO> getMoviesFromSeen(@AuthenticationPrincipal User user, @RequestParam Long id, @RequestParam String language){
+        return movieCollectionService.getSeenMovies(user,id, language);
     }
 }

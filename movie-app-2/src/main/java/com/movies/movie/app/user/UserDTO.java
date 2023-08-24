@@ -2,6 +2,7 @@ package com.movies.movie.app.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.movies.movie.app.MovieCollection.MovieCollection;
+import com.movies.movie.app.MovieCollection.MovieCollectionDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -42,25 +43,55 @@ public class UserDTO {
     private int following_count;
 
 
-    private MovieCollection seenCollection;
+    private MovieCollectionDTO seenCollection;
 
-    private MovieCollection toBeSeenCollection;
+    private MovieCollectionDTO toBeSeenCollection;
 
-    private MovieCollection likedCollection;
+    private MovieCollectionDTO likedCollection;
 
-    private List<MovieCollection> myCollections=new ArrayList<>();
+    private List<MovieCollectionDTO> myCollections=new ArrayList<>();
 
 
-    private List<MovieCollection> followedCollections = new ArrayList<>();
+    private List<MovieCollectionDTO> followedCollections = new ArrayList<>();
 
     //this one has to be incremented in service, with a trigger there would be an if statement for every movie added in a collection
     private int seen;
+
+    private boolean isFollower;
+    private boolean isFollowed;
+    private String biography;
+
+
 
     public UserDTO() {
     }
 
     public Long getId() {
         return id;
+    }
+
+    public String getBiography() {
+        return biography;
+    }
+
+    public void setBiography(String biography) {
+        this.biography = biography;
+    }
+
+    public boolean isFollower() {
+        return isFollower;
+    }
+
+    public void setFollower(boolean follower) {
+        isFollower = follower;
+    }
+
+    public boolean isFollowed() {
+        return isFollowed;
+    }
+
+    public void setFollowed(boolean followed) {
+        isFollowed = followed;
     }
 
     public void setId(Long id) {
@@ -163,43 +194,43 @@ public class UserDTO {
         this.following_count = following_count;
     }
 
-    public MovieCollection getSeenCollection() {
+    public MovieCollectionDTO getSeenCollection() {
         return seenCollection;
     }
 
-    public void setSeenCollection(MovieCollection seenCollection) {
+    public void setSeenCollection(MovieCollectionDTO seenCollection) {
         this.seenCollection = seenCollection;
     }
 
-    public MovieCollection getToBeSeenCollection() {
+    public MovieCollectionDTO getToBeSeenCollection() {
         return toBeSeenCollection;
     }
 
-    public void setToBeSeenCollection(MovieCollection toBeSeenCollection) {
+    public void setToBeSeenCollection(MovieCollectionDTO toBeSeenCollection) {
         this.toBeSeenCollection = toBeSeenCollection;
     }
 
-    public MovieCollection getLikedCollection() {
+    public MovieCollectionDTO getLikedCollection() {
         return likedCollection;
     }
 
-    public void setLikedCollection(MovieCollection likedCollection) {
+    public void setLikedCollection(MovieCollectionDTO likedCollection) {
         this.likedCollection = likedCollection;
     }
 
-    public List<MovieCollection> getMyCollections() {
+    public List<MovieCollectionDTO> getMyCollections() {
         return myCollections;
     }
 
-    public void setMyCollections(List<MovieCollection> myCollections) {
+    public void setMyCollections(List<MovieCollectionDTO> myCollections) {
         this.myCollections = myCollections;
     }
 
-    public List<MovieCollection> getFollowedCollections() {
+    public List<MovieCollectionDTO> getFollowedCollections() {
         return followedCollections;
     }
 
-    public void setFollowedCollections(List<MovieCollection> followedCollections) {
+    public void setFollowedCollections(List<MovieCollectionDTO> followedCollections) {
         this.followedCollections = followedCollections;
     }
 

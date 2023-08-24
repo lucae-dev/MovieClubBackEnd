@@ -139,6 +139,15 @@ public class MovieService {
         return movieDTOS;
     }
 
+    public List<MovieDTO> searchMovies(User user,String keyword, String primaryReleaseYear,
+                                        String region,
+                                        String language){
+
+        List<Movie> movies = tmdbService.searchMovies(keyword, primaryReleaseYear,region,language);
+        movies = addProvidersToList(movies);
+        movieRepository.saveAll(movies);
+        return addLikedToDTOList(user,convertListToDTO(movies));
+    }
 
 
     public List<MovieDTO> discoverMovies(User user, Integer genreId, String providerIDs){

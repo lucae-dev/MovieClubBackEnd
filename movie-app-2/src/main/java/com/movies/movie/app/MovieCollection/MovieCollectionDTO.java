@@ -36,11 +36,21 @@ public class MovieCollectionDTO {
 
     private int followCount;
 
+    private boolean isFollowed;
+
     public MovieCollectionDTO() {
     }
 
     public boolean isMoviePresent() {
         return moviePresent;
+    }
+
+    public boolean isFollowed() {
+        return isFollowed;
+    }
+
+    public void setFollowed(boolean followed) {
+        isFollowed = followed;
     }
 
     public void setMoviePresent(boolean moviePresent) {

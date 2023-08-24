@@ -12,9 +12,12 @@ import com.movies.movie.app.user.UserRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -95,6 +98,26 @@ public class MovieCollectionService {
        return movies;
     }
 
+    public List<MovieDTO> getSeenMovies(User user2, Long collid, String language){
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
+
+        List<MovieDTO> movies = new ArrayList<>();
+
+        for(Movie m : user.getSeenCollection().getMovies()){
+            MovieDTO moviet =new MovieDTO();
+            moviet = movieService.convertToDTO(movieService.addProviders(movieService.getMovieDetails(m.getId(), language)));
+            final Long idTemp = moviet.getId();
+            if(user.getLikedCollection().getMovies().stream().anyMatch(movieLiked -> Objects.equals(movieLiked.getId(),idTemp))){
+                moviet.setLiked(Boolean.TRUE);
+            }
+            else {
+                moviet.setLiked(Boolean.FALSE);
+            }
+            movies.add(moviet);
+        }
+        return movies;
+    }
+
     public List<MovieCollectionDTO> getDefaultCollections(User user2) {
         List<MovieCollection> defaultCollections = new ArrayList<>();
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("user not found!"));
@@ -143,12 +166,34 @@ public class MovieCollectionService {
         allCollections.addAll(getSavedCollections(user));
         return allCollections;
     }
+/*
+    public List<MovieCollectionDTO> addFollowingToDTOList(User user2, List<MovieCollectionDTO> movieCollectionDTOS){
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
+        for(MovieCollectionDTO movieCollectionDTO:movieCollectionDTOS){
+            if(user.getFollowedCollections().stream().anyMatch(followedCollection -> Objects.equals(followedCollection.getId(),movieCollectionDTO.getId()))){
+                movieCollectionDTO.setFollowed(Boolean.TRUE);
+            }
+            else {
+                movieCollectionDTO.setFollowed(Boolean.FALSE);
+            }
+        }
+        return movieCollectionDTOS;
+    }
+*/
 
+    public List<MovieCollectionDTO> searchByKeyword(User user, String keyword, Pageable pageable){
+        Page<MovieCollection> collections = movieCollectionRepository.searchByKeyword(keyword, pageable);
+        List<MovieCollectionDTO> collectionsDTOs = collections.getContent()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return addFollowedToCollections(user, collectionsDTOs);
 
-
+    }
     public MovieCollectionDTO createMovieCollection(User user2, MovieCollection movieCollection) {
         movieCollection.setCreation_date(LocalDateTime.now());
         movieCollection.setOwner(user2);
+        movieCollection.setVisible(Boolean.TRUE);
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
         user.getMyCollections().add(movieCollection);
         user = userRepository.saveAndFlush(user);
@@ -298,7 +343,6 @@ public class MovieCollectionService {
 
 
     public MovieCollectionDTO setDescription(User user2, Long id, String description) {
-
        User user=  userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("Collection not found"));
        MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(()->new IllegalStateException("Collection not found"));
        if(user.getId()==movieCollection.getOwner().getId()){
@@ -349,4 +393,41 @@ public class MovieCollectionService {
         }
         //search movie collection by name
     }
+
+
+    public MovieCollectionDTO addFollowedToCollection(List<MovieCollectionDTO> followedCollectionDTOS, MovieCollectionDTO movieCollectionDTO){
+        if(followedCollectionDTOS.stream().anyMatch(movieCollectionDTO1 -> Objects.equals(movieCollectionDTO1.getId(), movieCollectionDTO.getId()))){
+            movieCollectionDTO.setFollowed(Boolean.TRUE);
+        }
+        return movieCollectionDTO;
+    }
+
+    public List<MovieCollectionDTO> addFollowedToCollections(User userMain, List<MovieCollectionDTO> movieCollectionDTOs){
+        User userMe = userRepository.findById(userMain.getId()).orElseThrow(()->new IllegalStateException("user not found"));
+        List<MovieCollectionDTO> followedCollectionDTOS =convertListToDTO( userMe.getFollowedCollections());
+        for(MovieCollectionDTO movieCollectionDTO1: movieCollectionDTOs){
+            addFollowedToCollection(followedCollectionDTOS,movieCollectionDTO1);
+        }
+        return movieCollectionDTOs;
+    }
+
+    public List<MovieCollectionDTO> getUserCollections(User userMain, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("user not found"));
+
+
+        return addFollowedToCollections(userMain, convertListToDTO(user.getMyCollections()));
+
+    }
+
+    public MovieCollectionDTO getUserSeenCollection(User userMain, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("user not found"));
+        User userMe = userRepository.findById(userMain.getId()).orElseThrow(()->new IllegalStateException("user not found"));
+
+
+        return addFollowedToCollection(convertListToDTO( userMe.getFollowedCollections()), convertToDTO(user.getSeenCollection()));
+
+    }
+
+
+
 }

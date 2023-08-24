@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -38,20 +39,26 @@ public class MovieController {
     public List<MovieDTO> discoverMovies(@AuthenticationPrincipal User user,@RequestParam Integer genreId, @RequestParam String providerIds){
         return movieService.discoverMovies(user,genreId, providerIds);
     }
+    @GetMapping("/searchMovies")
+    public List<MovieDTO> searchMovies(@AuthenticationPrincipal User user,@RequestParam String keyword, @RequestParam  String primaryReleaseYear,
+                                      @RequestParam String region,
+                                      @RequestParam String language){
+        return movieService.searchMovies(user,keyword, primaryReleaseYear,UriUtils.decode(region, "UTF-8"),UriUtils.decode(language, "UTF-8"));
+    }
 
     @GetMapping("/movie/providers")
     public WatchProvidersContainer getProvidersByCountry(@RequestParam Long movieId, @RequestParam String country){
-        return  movieService.getProvidersByCountry(movieId, country);
+        return  movieService.getProvidersByCountry(movieId, UriUtils.decode(country, "UTF-8"));
     }
 
     @GetMapping("/movie")
     public Movie getMovieDetails(@RequestParam Long movieId, @RequestParam String language){
-        return movieService.getMovieDetails(movieId, language);
+        return movieService.getMovieDetails(movieId, UriUtils.decode(language, "UTF-8"));
     }
 
     @GetMapping("/movie/getRecommendations")
     public List<Movie> getMovieRecommendations(@RequestParam Long movieId, @RequestParam String language, @RequestParam int page){
-        return movieService.getMovieRecommendations(movieId, language, page);
+        return movieService.getMovieRecommendations(movieId, UriUtils.decode(language, "UTF-8"), page);
     }
 
     @GetMapping("/getTrending")

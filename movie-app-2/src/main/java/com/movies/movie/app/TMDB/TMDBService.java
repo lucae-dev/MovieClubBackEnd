@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,49 @@ public class TMDBService {
             throw new RuntimeException("Failed to fetch movies");
         }
     }*/
+
+
+
+
+
+    public List<Movie> searchMovies( String keyword, String primaryReleaseYear, String Region, String language) {
+        System.out.println(keyword);
+
+        String uri;
+       if(!primaryReleaseYear.isBlank()) {
+            uri = UriComponentsBuilder
+                   .fromHttpUrl("https://api.themoviedb.org/3/search/movie")
+                   .queryParam("api_key", apiKey)
+                    .queryParam("query", keyword)
+                    .queryParam("include_adult", "false")
+                   .queryParam("primary_release_year", primaryReleaseYear)
+                   .queryParam("language", language)
+                   .queryParam("watch_region", Region)
+                    .build(false)
+                   .toUriString();
+       }
+       else{
+            uri = UriComponentsBuilder
+                   .fromHttpUrl("https://api.themoviedb.org/3/search/movie")
+                   .queryParam("api_key", apiKey)
+                    .queryParam("query", keyword)
+                    .queryParam("include_adult", "false")
+                   .queryParam("language", language)
+                   .queryParam("watch_region", Region)
+                    .build(false)
+                   .toUriString();
+       }
+        System.out.println(uri);
+
+        ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults();
+        } else {
+            throw new RuntimeException("Failed to search movies");
+        }
+    }
+
 
 
     public List<Movie> discoverMovies(Integer genreId, String providerIds) {

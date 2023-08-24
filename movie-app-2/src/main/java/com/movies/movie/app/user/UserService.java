@@ -1,19 +1,29 @@
 package com.movies.movie.app.user;
 
+import com.movies.movie.app.MovieCollection.MovieCollection;
+import com.movies.movie.app.MovieCollection.MovieCollectionDTO;
+import com.movies.movie.app.MovieCollection.MovieCollectionService;
 import com.movies.movie.app.MovieRating.MovieRating;
 import com.movies.movie.app.auth.AuthenticationService;
 import com.movies.movie.app.movie.Movie;
+import com.movies.movie.app.movie.MovieDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
+import java.sql.SQLOutput;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -23,6 +33,8 @@ public class UserService {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    MovieCollectionService movieCollectionService;
 
 
 
@@ -45,17 +57,144 @@ public class UserService {
     }
 */
 
-    public boolean follow(User user2, Long followed_id){
-       User followed_user = userRepository.findById(followed_id).orElseThrow(()-> new IllegalStateException("User not found"));
-       User follower_user = userRepository.findById(user2.getId()).orElseThrow(()-> new IllegalStateException("User not found"));
+    public UserDTO convertToDTO(User user) {
+        UserDTO userDTO = new UserDTO();
 
-       followed_user.getFollowers().add(follower_user);
-       userRepository.saveAndFlush(followed_user);
+        userDTO.setId(user.getId());
+        userDTO.setUsername(user.getUsername());
+        userDTO.setLocked(user.isLocked());
+        userDTO.setVerified(user.isVerified());
+       // userDTO.setProviderIds(user.getProviderIds()); // This might need further mapping
+        userDTO.setEmail(user.getEmail());
+        userDTO.setPropic(user.getPropic());
+        userDTO.setBiography(user.getBiography());
 
-       return follower_user.getFollowers().contains(followed_user);
+        userDTO.setFollowers_count(user.getFollowers_count());
+        userDTO.setFollowing_count(user.getFollowing_count());
 
+        userDTO.setSeen(user.getSeen());
+
+        return userDTO;
     }
 
+
+    public List<UserDTO> addFollowingToDTOList(User user2, List<UserDTO> userDTOS){
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
+        for(UserDTO userDTO:userDTOS){
+            if(user.getFollowing().stream().anyMatch(userFollowed -> Objects.equals(userFollowed.getId(),userDTO.getId()))){
+                userDTO.setFollowed(Boolean.TRUE);
+            }
+            else {
+                userDTO.setFollowed(Boolean.FALSE);
+            }
+        }
+        return userDTOS;
+    }
+
+
+    public UserDTO addFollowedToDTO(User user2, UserDTO userDTO){
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
+
+            if(user.getFollowing().stream().anyMatch(userFollower -> Objects.equals(userFollower.getId(),userDTO.getId()))){
+                userDTO.setFollowed(Boolean.TRUE);
+            }
+            else {
+                userDTO.setFollowed(Boolean.FALSE);
+            }
+
+        return userDTO;
+    }
+
+    public List<UserDTO> addFollowerToDTOList(User user2, List<UserDTO> userDTOS){
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
+        for(UserDTO userDTO:userDTOS){
+            if(user.getFollowers().stream().anyMatch(userFollower -> Objects.equals(userFollower.getId(),userDTO.getId()))){
+                userDTO.setFollower(Boolean.TRUE);
+            }
+            else {
+                userDTO.setFollower(Boolean.FALSE);
+            }
+        }
+        return userDTOS;
+    }
+
+    public List<UserDTO> addFollowerAndFollowingToDTOList(User user2, List<UserDTO> userDTOS){
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
+        for(UserDTO userDTO:userDTOS){
+            if(user.getFollowers().stream().anyMatch(userFollower -> Objects.equals(userFollower.getId(),userDTO.getId()))){
+                userDTO.setFollower(Boolean.TRUE);
+            }
+            else {
+                userDTO.setFollower(Boolean.FALSE);
+            }
+            if(user.getFollowing().stream().anyMatch(userFollowed -> Objects.equals(userFollowed.getId(),userDTO.getId()))){
+                userDTO.setFollowed(Boolean.TRUE);
+            }
+            else {
+                userDTO.setFollowed(Boolean.FALSE);
+            }
+        }
+        return userDTOS;
+    }
+
+
+    public List<UserDTO> searchByKeyword(User user,String keyword, Pageable pageable) {
+        Page<User> users = userRepository.searchByKeyword(keyword, pageable);
+        List<UserDTO> userDTOs = users.getContent()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return addFollowerAndFollowingToDTOList(user, userDTOs);
+    }
+    public boolean followUser(Long followerId, Long followingId) {
+        // Load the users from the database
+        User follower = userRepository.findById(followerId).orElseThrow(() -> new IllegalStateException("User not found"));
+        User following = userRepository.findById(followingId).orElseThrow(() -> new IllegalStateException("User not found"));
+
+        // Check if the user is already following the other user
+        if (follower.getFollowing().contains(following)) {
+            return true; // Already following
+        }
+
+        // Modify both sides of the relationship
+        follower.getFollowing().add(following);
+        following.getFollowers().add(follower);
+
+        // Update the follower and following counters
+        follower.setFollowing_count(follower.getFollowing_count() + 1);
+        following.setFollowers_count(following.getFollowers_count() + 1);
+
+        // Save the changes to the database
+        userRepository.save(follower);
+        userRepository.save(following);
+
+        return true; // Successfully followed
+    }
+
+    public boolean unfollowUser(Long followerId, Long followingId) {
+        // Load the users from the database
+        User follower = userRepository.findById(followerId).orElseThrow(() -> new IllegalStateException("User not found"));
+        User following = userRepository.findById(followingId).orElseThrow(() -> new IllegalStateException("User not found"));
+
+        // Check if the user is not following the other user
+        if (!follower.getFollowing().contains(following)) {
+            return false; // Not following
+        }
+
+        // Modify both sides of the relationship
+        follower.getFollowing().remove(following);
+        following.getFollowers().remove(follower);
+
+        // Update the follower and following counters
+        follower.setFollowing_count(follower.getFollowing_count() - 1);
+        following.setFollowers_count(following.getFollowers_count() - 1);
+
+        // Save the changes to the database
+        userRepository.save(follower);
+        userRepository.save(following);
+
+        return false; // Successfully unfollowed
+    }
 
     public String setDescription(User user, String description){
         user.setBiography(description);
@@ -83,6 +222,30 @@ public class UserService {
             likedIds.add(movie.getId());
         }
         return likedIds;
+    }
+
+    public List<MovieCollectionDTO> getPublicCollections(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
+
+        return movieCollectionService.convertListToDTO(user.getMyCollections().stream().filter(movieCollection -> movieCollection.isVisible()).toList());
+
+    }
+
+
+
+    public UserDTO getUserPageInfo(User userMain2, Long userId) {
+        User user = userRepository.findUserWithVisibleCollections(userId).orElseThrow(()->new IllegalStateException("User not found"));
+        UserDTO userDTO = convertToDTO(user);
+        userDTO.setMyCollections(movieCollectionService.convertListToDTO( user.getMyCollections()));
+        final UserDTO userDTO1 = new UserDTO();
+        userDTO1.setId(userDTO.getId());
+        userDTO1.setUsername(userDTO.getUsername());
+        for(MovieCollectionDTO movieCollectionDTO: userDTO.getMyCollections()){
+            movieCollectionDTO.setOwner(userDTO1);
+        }
+
+        return addFollowedToDTO( userMain2, userDTO);
     }
 
 
