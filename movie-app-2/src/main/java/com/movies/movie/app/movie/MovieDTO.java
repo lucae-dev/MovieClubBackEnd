@@ -28,7 +28,7 @@ public class MovieDTO {
     private int votes;
     private int runtime;
     private int budget;
-    private int revenue;
+    private Long revenue;
     private String tagline;
     private Boolean liked;
 
@@ -211,11 +211,11 @@ public class MovieDTO {
         this.budget = budget;
     }
 
-    public int getRevenue() {
+    public Long getRevenue() {
         return revenue;
     }
 
-    public void setRevenue(int revenue) {
+    public void setRevenue(Long revenue) {
         this.revenue = revenue;
     }
 

@@ -77,6 +77,21 @@ public class MovieCollectionService {
 
 
 
+    public List<MovieCollectionDTO> addFollowedCollection(Long userId, List<MovieCollectionDTO> movieCollectionDTOs){
+
+      User user=  userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
+
+
+        List<MovieCollectionDTO> movieCollectionUserDTOs = convertListToDTO(user.getFollowedCollections());
+        for(MovieCollectionDTO movieCollection:movieCollectionDTOs){
+            if(movieCollectionUserDTOs.stream().anyMatch(movieCollectionDTO -> movieCollectionDTO.getId().equals(movieCollection.getId()))){
+                movieCollection.setFollowed(Boolean.TRUE);
+            }
+        }
+        return movieCollectionDTOs;
+    }
+
+
     public List<MovieDTO> getCollectionMovies(User user2, Long collid, String language){
             User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
         MovieCollection movieCollection = movieCollectionRepository.findById(collid).orElseThrow(()->new IllegalStateException("collection does not exist!"));
@@ -155,7 +170,7 @@ public class MovieCollectionService {
 
     public List<MovieCollectionDTO> getSavedCollections(User user2) {
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
-        return convertListToDTO(user.getFollowedCollections());
+        return addFollowedToCollections(user, convertListToDTO(user.getFollowedCollections()));
     }
 
     public List<MovieCollectionDTO> getAllCollections(User user2) {
@@ -353,27 +368,21 @@ public class MovieCollectionService {
 
     }
 
-    public Boolean removeMovie(User user, Long id, Movie movie) {
+    public Boolean removeMovie(Long userId, Long id, Movie movie) {
 
-        MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
-        if (movieCollection.getOwner().getId() == user.getId()) {
-            if (movieCollection.getMovies().stream()
-                    .anyMatch(movie2 -> movie2.getId() == movie.getId())) {
+        User user = userRepository.findById(userId).orElseThrow(()-> new IllegalStateException("user not found"));
+MovieCollection movieCollection = user.getMyCollections().stream().filter(movieCollection1 -> movieCollection1.getId().equals(id)).findFirst().orElseThrow(()->new IllegalArgumentException("You cannot modify this collection since you are not the owner!"));
+        if (movieCollection.getMovies().stream()
+                .anyMatch(movie2 -> movie2.getId() == movie.getId())) {
 
-                user.getLikedCollection().getMovies().removeIf(m->movie.getId().equals(m.getId()));
-                userRepository.save(user);
-            }
-             movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
+            movieCollection.getMovies().removeIf(m->movie.getId().equals(m.getId()));
+            userRepository.save(user);
+        }
 
-            if(movieCollection.getMovies().stream()
-                    .anyMatch(movie2 -> movie2.getId() == movie.getId())){
-                return Boolean.TRUE;
-            }
             return Boolean.FALSE;
 
-        } else {
-            throw new IllegalArgumentException("You cannot modify this collection since you are not the owner!");
-        }
+
+
     }
 
     public MovieCollectionDTO removeMovies(User user, Long id, List<Movie> movies) {
@@ -398,6 +407,7 @@ public class MovieCollectionService {
     public MovieCollectionDTO addFollowedToCollection(List<MovieCollectionDTO> followedCollectionDTOS, MovieCollectionDTO movieCollectionDTO){
         if(followedCollectionDTOS.stream().anyMatch(movieCollectionDTO1 -> Objects.equals(movieCollectionDTO1.getId(), movieCollectionDTO.getId()))){
             movieCollectionDTO.setFollowed(Boolean.TRUE);
+            System.out.println("TRUE KTMMMM");
         }
         return movieCollectionDTO;
     }
@@ -429,5 +439,40 @@ public class MovieCollectionService {
     }
 
 
+    public boolean addToFavourite(Long userId, Long collectionId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
+        System.out.println(" addFavourite");
 
+
+        MovieCollection movieCollection = movieCollectionRepository.findById(collectionId).orElseThrow(()->new IllegalStateException("Collection not found"));
+        if(user.getFollowedCollections().contains(movieCollection)) {
+            return Boolean.TRUE;
+        }
+        movieCollection.setFollowCount(movieCollection.getFollowCount()+1);
+        user.getFollowedCollections().add(movieCollection);
+         userRepository.save(user);
+         movieCollectionRepository.save(movieCollection);
+        if(user.getFollowedCollections().contains(movieCollection)) {
+            System.out.println("tutto ok, addFavourite");
+
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public boolean removeFromFavourite(Long userId, Long collectionId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
+        MovieCollection movieCollection = movieCollectionRepository.findById(collectionId).orElseThrow(()->new IllegalStateException("Collection not found"));
+        if(!user.getFollowedCollections().contains(movieCollection)) {
+            return Boolean.FALSE;
+        }
+        user.getFollowedCollections().remove(movieCollection);
+        movieCollection.setFollowCount(movieCollection.getFollowCount()-1);
+
+        userRepository.save(user);
+        movieCollectionRepository.save(movieCollection);
+
+        return Boolean.FALSE;
+
+    }
 }

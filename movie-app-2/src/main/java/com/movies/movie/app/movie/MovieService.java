@@ -237,11 +237,15 @@ public class MovieService {
     }
 
     public Movie getMovieDetails(Long movieId, String language){
-        return tmdbService.getMovieDetails(movieId, language);
+        return  tmdbService.getMovieDetails(movieId, language);
     }
 
-    public List<Movie> getMovieRecommendations(Long movieId, String language, int page){
-        return tmdbService.getMovieRecommendations(movieId, language, page);
+    public MovieDTO getMovieDetailsDTO(User user,Long movieId, String language){
+        return addLikedToDTO(user, convertToDTO(addProviders(tmdbService.getMovieDetails(movieId, language))));
+    }
+
+    public List<MovieDTO> getMovieRecommendations(User user, Long movieId, String language, int page){
+        return  addLikedToDTOList(user, convertListToDTO(addProvidersToList(tmdbService.getMovieRecommendations(movieId, language, page))));
     }
 
 

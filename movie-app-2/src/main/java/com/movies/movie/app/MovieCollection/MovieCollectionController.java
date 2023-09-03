@@ -48,6 +48,18 @@ public class MovieCollectionController {
     public boolean addToLiked(@AuthenticationPrincipal User user, @RequestBody Movie movie) {
         return movieCollectionService.like(user, movie);
     }
+
+    //change names, for movies in movies collections here
+    @PutMapping("/{collectionId}/addToFavourite")
+    public boolean addToFavourite(@AuthenticationPrincipal User user, @PathVariable Long collectionId ) {
+        return movieCollectionService.addToFavourite(user.getId(), collectionId);
+    }
+
+    @PutMapping("/{collectionId}/removeFromFavourite")
+    public boolean removeFromFavourite(@AuthenticationPrincipal User user, @PathVariable Long collectionId ) {
+        return movieCollectionService.removeFromFavourite(user.getId(), collectionId);
+    }
+
     @PostMapping("/removeFromLiked")
     public boolean removeFromLiked(@AuthenticationPrincipal User user, @RequestBody Movie movie) {
         return movieCollectionService.dislike(user, movie);
@@ -66,7 +78,7 @@ public class MovieCollectionController {
 
     @PostMapping("/{id}/removeMovie")
     public Boolean removeMovie(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody Movie movie) {
-        return movieCollectionService.removeMovie(user, id, movie);
+        return movieCollectionService.removeMovie(user.getId(), id, movie);
     }
 
     @PostMapping("/{id}/removeMovies")

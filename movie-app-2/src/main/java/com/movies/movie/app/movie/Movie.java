@@ -52,7 +52,7 @@ public class Movie {
 
     private int runtime;
     private int budget;
-    private int revenue;
+    private Long revenue;
     private String tagline;
 
 /*
@@ -156,11 +156,11 @@ public class Movie {
         this.budget = budget;
     }
 
-    public int getRevenue() {
+    public Long getRevenue() {
         return revenue;
     }
 
-    public void setRevenue(int revenue) {
+    public void setRevenue(Long revenue) {
         this.revenue = revenue;
     }
 

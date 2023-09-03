@@ -52,13 +52,13 @@ public class MovieController {
     }
 
     @GetMapping("/movie")
-    public Movie getMovieDetails(@RequestParam Long movieId, @RequestParam String language){
-        return movieService.getMovieDetails(movieId, UriUtils.decode(language, "UTF-8"));
+    public MovieDTO getMovieDetails(@AuthenticationPrincipal User user, @RequestParam Long movieId, @RequestParam String language){
+        return movieService.getMovieDetailsDTO(user, movieId, UriUtils.decode(language, "UTF-8"));
     }
 
     @GetMapping("/movie/getRecommendations")
-    public List<Movie> getMovieRecommendations(@RequestParam Long movieId, @RequestParam String language, @RequestParam int page){
-        return movieService.getMovieRecommendations(movieId, UriUtils.decode(language, "UTF-8"), page);
+    public List<MovieDTO> getMovieRecommendations(@AuthenticationPrincipal User user, @RequestParam Long movieId, @RequestParam String language, @RequestParam int page){
+        return movieService.getMovieRecommendations(user,movieId, UriUtils.decode(language, "UTF-8"), page);
     }
 
     @GetMapping("/getTrending")

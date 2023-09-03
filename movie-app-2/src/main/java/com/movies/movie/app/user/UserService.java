@@ -2,11 +2,13 @@ package com.movies.movie.app.user;
 
 import com.movies.movie.app.MovieCollection.MovieCollection;
 import com.movies.movie.app.MovieCollection.MovieCollectionDTO;
+import com.movies.movie.app.MovieCollection.MovieCollectionRepository;
 import com.movies.movie.app.MovieCollection.MovieCollectionService;
 import com.movies.movie.app.MovieRating.MovieRating;
 import com.movies.movie.app.auth.AuthenticationService;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.movie.MovieDTO;
+import com.movies.movie.app.movie.MovieService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +33,14 @@ public class UserService {
     @Autowired
     AuthenticationService authenticationService;
 
+
+
     @Autowired
     UserRepository userRepository;
     @Autowired
     MovieCollectionService movieCollectionService;
+    @Autowired
+    MovieService movieService;
 
 
 
@@ -237,6 +243,7 @@ public class UserService {
     public UserDTO getUserPageInfo(User userMain2, Long userId) {
         User user = userRepository.findUserWithVisibleCollections(userId).orElseThrow(()->new IllegalStateException("User not found"));
         UserDTO userDTO = convertToDTO(user);
+
         userDTO.setMyCollections(movieCollectionService.convertListToDTO( user.getMyCollections()));
         final UserDTO userDTO1 = new UserDTO();
         userDTO1.setId(userDTO.getId());
@@ -244,7 +251,12 @@ public class UserService {
         for(MovieCollectionDTO movieCollectionDTO: userDTO.getMyCollections()){
             movieCollectionDTO.setOwner(userDTO1);
         }
-
+        List<Movie> seenMovies = user.getSeenCollection().getMovies().subList(0,Integer.min( user.getSeenCollection().getMovies().size(), 9));
+        if(!seenMovies.isEmpty()) {
+            MovieCollectionDTO movieCollectionDTO =movieCollectionService.convertToDTO(user.getSeenCollection());
+                  movieCollectionDTO.setMovies(movieService.addLikedToDTOList(userMain2, movieService.convertListToDTO(movieService.addProvidersToList(seenMovies))));
+            userDTO.setSeenCollection(movieCollectionDTO);
+        }
         return addFollowedToDTO( userMain2, userDTO);
     }
 
