@@ -4,6 +4,7 @@ import com.movies.movie.app.Genre.Genre;
 import com.movies.movie.app.MovieRating.MovieRating;
 import com.movies.movie.app.user.User;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 
 
@@ -35,7 +36,8 @@ public class Movie {
     private List<Integer> rent_ids;
     @ElementCollection
     private List<Integer> buy_ids;
-    @Column(length = 1000)
+    //@Column(length = 1000)
+    @Transient
     private String overview;
     private String description;
     private double totpoints;
