@@ -35,6 +35,12 @@ public class MovieController {
     public List<Movie> discoverMovies(@RequestParam Integer genreId, @RequestParam Integer providerId){
         return movieService.discoverMovies(genreId, providerId);
     }*/
+
+    @PostMapping("/areMoviesLiked")
+    public List<MovieDTO> areMoviesLiked(@AuthenticationPrincipal User user, @RequestBody List<MovieDTO> movies){
+        return movieService.addLikedToDTOList(user,movies);
+    }
+
     @GetMapping("/discoverMovies")
     public List<MovieDTO> discoverMovies(@AuthenticationPrincipal User user,@RequestParam Integer genreId, @RequestParam String providerIds){
         return movieService.discoverMovies(user,genreId, providerIds);

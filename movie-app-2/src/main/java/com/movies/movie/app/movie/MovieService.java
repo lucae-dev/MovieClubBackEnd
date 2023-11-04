@@ -150,6 +150,8 @@ public class MovieService {
     }
 
 
+
+
     public List<MovieDTO> discoverMovies(User user, Integer genreId, String providerIDs){
 
         List<Movie> movies = tmdbService.discoverMovies(genreId,providerIDs);
