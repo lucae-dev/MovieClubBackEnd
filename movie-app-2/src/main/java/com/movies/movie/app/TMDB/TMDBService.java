@@ -100,7 +100,27 @@ public class TMDBService {
         }
     }
 
+    public List<Movie> discoverMovies(String genreIds, String providerIds) {
+        final String watch_region = "IT";
+        final String language = "it-IT";
+        String uri = UriComponentsBuilder
+                .fromHttpUrl("https://api.themoviedb.org/3/discover/movie")
+                .queryParam("api_key", apiKey)
+                .queryParam("language", language)
+                .queryParam("watch_region", watch_region)
+                .toUriString();
+        uri +="&with_watch_providers=" + providerIds;
+        uri +="&with_genres=" + genreIds;
 
+        System.out.println(uri);
+        ResponseEntity<MovieListResponse> responseEntity = restTemplate.getForEntity(uri, MovieListResponse.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            return responseEntity.getBody().getResults();
+        } else {
+            throw new RuntimeException("Failed to fetch movies");
+        }
+    }
 
     public List<Movie> discoverMovies(Integer genreId, String providerIds) {
         final String watch_region = "IT";
