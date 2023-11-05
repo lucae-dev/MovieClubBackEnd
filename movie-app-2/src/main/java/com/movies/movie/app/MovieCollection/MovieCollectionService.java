@@ -95,7 +95,7 @@ public class MovieCollectionService {
     public List<MovieDTO> getCollectionMovies(User user2, Long collid, String language){
             User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
         MovieCollection movieCollection = movieCollectionRepository.findById(collid).orElseThrow(()->new IllegalStateException("collection does not exist!"));
-
+/*
         List<MovieDTO> movies = new ArrayList<>();
 
         for(Movie m : movieCollection.getMovies()){
@@ -109,8 +109,8 @@ public class MovieCollectionService {
                 moviet.setLiked(Boolean.FALSE);
             }
             movies.add(moviet);
-        }
-       return movies;
+        }*/
+       return movieService.convertListToDTO(movieCollection.getMovies());
     }
 
     public List<MovieDTO> getSeenMovies(User user2, Long collid, String language){

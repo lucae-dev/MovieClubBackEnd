@@ -63,9 +63,9 @@ public class SearchController {
         System.out.println(Keyword);
         List<MovieCollectionDTO> movieCollections = movieCollectionService.searchByKeyword(user, Keyword, pageable);
         List<UserDTO> users = userService.searchByKeyword(user, Keyword, pageable);
-        List<MovieDTO> movies =  movieService.searchMovies(user,Keyword, "", UriUtils.decode(region, "UTF-8"), language);
+       // List<MovieDTO> movies = movieService.searchMovies(user,Keyword, "", UriUtils.decode(region, "UTF-8"), language);
         Map<String, Object> results = new HashMap<>();
-        results.put("movies", movies);
+        //results.put("movies", movies);
         results.put("movieCollections", movieCollections);
         results.put("users", users);
 
