@@ -25,6 +25,7 @@ public class UserController {
 
     @PostMapping(path = "/registerDeviceToken")
     public String registerDeviceToken(@AuthenticationPrincipal User user, @RequestParam String deviceToken){
+        System.out.println("saving Token");
         return userService.registerUserToken(user.getId(), deviceToken);
     }
 

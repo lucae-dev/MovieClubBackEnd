@@ -272,11 +272,15 @@ public class UserService {
 
 
     public String registerUserToken(Long userId, String deviceTokenStr){
+        System.out.println("saving Token service");
+
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         DeviceToken deviceToken = new DeviceToken();
         deviceToken.setToken(deviceTokenStr);
         deviceToken.setUser(user);
         deviceTokenRepository.save(deviceToken);
+        System.out.println("saved Token");
+
         return deviceToken.getToken();
     }
 
