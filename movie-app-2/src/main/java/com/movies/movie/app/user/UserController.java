@@ -24,8 +24,8 @@ public class UserController {
 
 
     @PostMapping(path = "/registerDeviceToken")
-    public String registerDeviceToken(@RequestParam Long userId, @RequestParam String deviceToken){
-        return userService.registerUserToken(userId, deviceToken);
+    public String registerDeviceToken(@AuthenticationPrincipal User user, @RequestParam String deviceToken){
+        return userService.registerUserToken(user.getId(), deviceToken);
     }
 
     @PutMapping(path = "/{followedId}/follow")
