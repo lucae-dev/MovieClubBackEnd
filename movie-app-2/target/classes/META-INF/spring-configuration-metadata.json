@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "gcp.firebase",
+      "type": "com.movies.movie.app.Config.FirebaseProperties",
+      "sourceType": "com.movies.movie.app.Config.FirebaseProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "gcp.firebase.service-account",
+      "type": "org.springframework.core.io.Resource",
+      "sourceType": "com.movies.movie.app.Config.FirebaseProperties"
+    }
+  ],
+  "hints": []
+}
