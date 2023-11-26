@@ -1,5 +1,8 @@
 package com.movies.movie.app.MovieCollection;
 
+import com.movies.movie.app.Notifications.NotificationService;
+import com.movies.movie.app.TVSeries.TVSeries;
+import com.movies.movie.app.TVSeries.TVSeriesRepository;
 import com.movies.movie.app.WatchProvider.WatchProvider;
 import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
 import com.movies.movie.app.movie.Movie;
@@ -32,6 +35,12 @@ public class MovieCollectionService {
 
     @Autowired
     private MovieRepository movieRepository;
+
+    @Autowired
+    private TVSeriesRepository tvSeriesRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private UserRepository userRepository;
@@ -235,6 +244,27 @@ public class MovieCollectionService {
 
     }
 
+
+    public boolean addTVSeries(User user, Long id, TVSeries tvSeries) {
+        if(!tvSeriesRepository.existsById(tvSeries.getId())){
+            tvSeriesRepository.save(tvSeries);
+        }
+        MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
+        if (movieCollection.getOwner().getId() == user.getId()) {
+            if(movieCollection.getTvSeries().stream().anyMatch(tvSeries1 -> Objects.equals(tvSeries1.getId(),tvSeries.getId()))){
+
+            }
+            else{
+                movieCollection.getTvSeries().add(tvSeries);
+                movieCollectionRepository.save(movieCollection);
+            }
+            return movieCollection.getTvSeries().stream().anyMatch(tvSeries1 -> Objects.equals(tvSeries1.getId(),tvSeries.getId()));
+        } else {
+            throw new IllegalArgumentException("You cannot modify this collection since you are not the owner!");
+        }
+
+    }
+
     public boolean addToSeen(User user2, Movie movie) {
         if(!movieRepository.existsById(movie.getId())){
             movieRepository.save(movie);
@@ -255,6 +285,27 @@ public class MovieCollectionService {
 
     }
 
+    public boolean addToSeen(User user2, TVSeries tvSeries) {
+        if(!tvSeriesRepository.existsById(tvSeries.getId())){
+            tvSeriesRepository.save(tvSeries);
+        }
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
+        MovieCollection seen = user.getSeenCollection();
+        if (seen.getMovies().stream()
+                .anyMatch(movie2 -> Objects.equals(movie2.getId(), tvSeries.getId()))) {
+            user.getToBeSeenCollection().getMovies().removeIf(m -> Objects.equals(m.getId(), tvSeries.getId()));
+
+            return Boolean.TRUE;
+        } else {
+            user.getToBeSeenCollection().getTvSeries().removeIf(t -> Objects.equals(t.getId(), tvSeries.getId()));
+            user.getSeenCollection().getTvSeries().add(tvSeries);
+            userRepository.save(user);
+            return user.getSeenCollection().getTvSeries().stream().anyMatch(tvSeries1 -> Objects.equals(tvSeries1.getId(),tvSeries.getId()));
+        }
+
+    }
+
+
     public boolean addToBeSeen(User user2, Movie movie) {
         if(!movieRepository.existsById(movie.getId())){
             movieRepository.save(movie);
@@ -274,6 +325,30 @@ public class MovieCollectionService {
             user.getToBeSeenCollection().getMovies().add(movie);
             userRepository.save(user);
             return user.getToBeSeenCollection().getMovies().stream().anyMatch(movie1 -> Objects.equals(movie1.getId(),movie.getId()));
+        }
+
+    }
+
+
+    public boolean addToBeSeen(User user2, TVSeries tvSeries) {
+        if(!tvSeriesRepository.existsById(tvSeries.getId())){
+            tvSeriesRepository.save(tvSeries);
+        }
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
+        MovieCollection toSee = user.getToBeSeenCollection();
+        if (toSee.getTvSeries().stream()
+                .anyMatch(tvSeries1 -> Objects.equals(tvSeries1.getId(), tvSeries.getId()))) {
+            user.getSeenCollection().getTvSeries().removeIf(t -> Objects.equals(t.getId(), tvSeries.getId()));
+
+            return Boolean.TRUE;
+        } else {
+
+
+            user.getSeenCollection().getTvSeries().removeIf(t -> Objects.equals(t.getId(), tvSeries.getId()));
+
+            user.getToBeSeenCollection().getTvSeries().add(tvSeries);
+            userRepository.save(user);
+            return user.getToBeSeenCollection().getTvSeries().stream().anyMatch(tvSeries1 -> Objects.equals(tvSeries1.getId(),tvSeries.getId()));
         }
 
     }
@@ -305,6 +380,33 @@ public class MovieCollectionService {
         return Boolean.FALSE;
     }
 
+    public boolean like(User user2, TVSeries tvSeries) {
+        if(!tvSeriesRepository.existsById(tvSeries.getId())){
+            tvSeriesRepository.save(tvSeries);
+        }
+        System.out.println("Ok BRAH 1");
+
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
+        MovieCollection likedCollection = user.getLikedCollection();
+        if (likedCollection.getTvSeries().stream()
+                .anyMatch(tvSeries1 -> tvSeries1.getId() == tvSeries.getId())) {
+
+
+        } else {
+            System.out.println("Ok BRAH else");
+
+            user.getLikedCollection().getTvSeries().add(tvSeries);
+            userRepository.saveAndFlush(user);
+        }
+
+        if(user.getLikedCollection().getTvSeries().stream()
+                .anyMatch(tvSeries1 -> tvSeries1.getId() == tvSeries.getId())){
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
     public boolean dislike(User user2, Movie movie) {
 
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
@@ -319,6 +421,25 @@ public class MovieCollectionService {
         }
         if(user.getLikedCollection().getMovies().stream()
                 .anyMatch(movie2 -> movie2.getId() == movie.getId())){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public boolean dislike(User user2, TVSeries tvSeries) {
+
+        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
+        MovieCollection likedCollection = user.getLikedCollection();
+        if (likedCollection.getTvSeries().stream()
+                .anyMatch(tvSeries1 ->Objects.equals( tvSeries1.getId() , tvSeries.getId()))) {
+
+            user.getLikedCollection().getTvSeries().removeIf(t->tvSeries.getId().equals(t.getId()));
+            userRepository.save(user);
+            System.out.println("remove from liked");
+
+        }
+        if(user.getLikedCollection().getTvSeries().stream()
+                .anyMatch(tvSeries1 -> tvSeries1.getId() == tvSeries.getId())){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -356,6 +477,19 @@ public class MovieCollectionService {
     }
 
 
+    public MovieCollectionDTO addTVSeries(User user, Long id, List<TVSeries> tvSeries) {
+        tvSeriesRepository.saveAll(tvSeries);
+
+        MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
+        if (movieCollection.getOwner().getId() == user.getId()) {
+            movieCollection.getTvSeries().addAll(tvSeries);
+            return convertToDTO(movieCollectionRepository.save(movieCollection));
+        } else {
+            throw new IllegalArgumentException("You cannot modify this collection since you are not the owner!");
+        }
+
+    }
+
 
     public MovieCollectionDTO setDescription(User user2, Long id, String description) {
        User user=  userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("Collection not found"));
@@ -385,6 +519,25 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
 
     }
 
+
+    public Boolean removeSeries(Long userId, Long id, TVSeries tvSeries) {
+
+        User user = userRepository.findById(userId).orElseThrow(()-> new IllegalStateException("user not found"));
+        MovieCollection movieCollection = user.getMyCollections().stream().filter(movieCollection1 -> movieCollection1.getId().equals(id)).findFirst().orElseThrow(()->new IllegalArgumentException("You cannot modify this collection since you are not the owner!"));
+        if (movieCollection.getTvSeries().stream()
+                .anyMatch(tvSeries1 -> tvSeries1.getId() == tvSeries.getId())) {
+
+            movieCollection.getTvSeries().removeIf(t->tvSeries.getId().equals(t.getId()));
+            userRepository.save(user);
+        }
+
+        return Boolean.FALSE;
+
+
+
+    }
+
+
     public MovieCollectionDTO removeMovies(User user, Long id, List<Movie> movies) {
         MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
         if (movieCollection.getOwner().getId() == user.getId()) {
@@ -403,6 +556,23 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
         //search movie collection by name
     }
 
+    public MovieCollectionDTO removeTVSerieses(User user, Long id, List<TVSeries> tvSeries) {
+        MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
+        if (movieCollection.getOwner().getId() == user.getId()) {
+
+
+            Set<Long> idsInMovieCollection = tvSeries.stream()
+                    .map(TVSeries::getId)
+                    .collect(Collectors.toSet());
+
+            movieCollection.getTvSeries().removeIf(tvSeries1 -> idsInMovieCollection.contains(tvSeries1.getId()));
+
+            return convertToDTO(movieCollectionRepository.save(movieCollection));
+        } else {
+            throw new IllegalArgumentException("You cannot modify this collection since you are not the owner!");
+        }
+        //search movie collection by name
+    }
 
     public MovieCollectionDTO addFollowedToCollection(List<MovieCollectionDTO> followedCollectionDTOS, MovieCollectionDTO movieCollectionDTO){
         if(followedCollectionDTOS.stream().anyMatch(movieCollectionDTO1 -> Objects.equals(movieCollectionDTO1.getId(), movieCollectionDTO.getId()))){
@@ -455,6 +625,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
         if(user.getFollowedCollections().contains(movieCollection)) {
             System.out.println("tutto ok, addFavourite");
 
+            notificationService.likedCollectionNotification(user, movieCollection.getOwner(), movieCollection.getName());
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

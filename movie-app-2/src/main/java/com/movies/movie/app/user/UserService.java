@@ -1,10 +1,13 @@
 package com.movies.movie.app.user;
 
+import com.movies.movie.app.FCMToken.DeviceToken;
+import com.movies.movie.app.FCMToken.DeviceTokenRepository;
 import com.movies.movie.app.MovieCollection.MovieCollection;
 import com.movies.movie.app.MovieCollection.MovieCollectionDTO;
 import com.movies.movie.app.MovieCollection.MovieCollectionRepository;
 import com.movies.movie.app.MovieCollection.MovieCollectionService;
 import com.movies.movie.app.MovieRating.MovieRating;
+import com.movies.movie.app.Notifications.NotificationService;
 import com.movies.movie.app.auth.AuthenticationService;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.movie.MovieDTO;
@@ -42,6 +45,11 @@ public class UserService {
     @Autowired
     MovieService movieService;
 
+    @Autowired
+    DeviceTokenRepository deviceTokenRepository;
+
+    @Autowired
+    NotificationService notificationService;
 
 
 
@@ -173,6 +181,7 @@ public class UserService {
         // Save the changes to the database
         userRepository.save(follower);
         userRepository.save(following);
+        notificationService.followNotification(follower, following);
 
         return true; // Successfully followed
     }
@@ -260,6 +269,16 @@ public class UserService {
         return addFollowedToDTO( userMain2, userDTO);
     }
 
+
+
+    public String registerUserToken(Long userId, String deviceTokenStr){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        DeviceToken deviceToken = new DeviceToken();
+        deviceToken.setToken(deviceTokenStr);
+        deviceToken.setUser(user);
+        deviceTokenRepository.save(deviceToken);
+        return deviceToken.getToken();
+    }
 
 //
 

@@ -3,6 +3,7 @@ package com.movies.movie.app.MovieCollection;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.movies.movie.app.TVSeries.TVSeries;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.user.User;
 import jakarta.persistence.*;
@@ -38,6 +39,13 @@ public class MovieCollection {
             joinColumns = @JoinColumn(name = "collection_id"),
             inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private List<Movie> movies;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "collection_series",
+            joinColumns = @JoinColumn(name = "collection_id"),
+            inverseJoinColumns = @JoinColumn(name = "series_id"))
+    private List<TVSeries> tvSeries;
+
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "followedCollections")
     private List<User> followers;
@@ -129,5 +137,13 @@ public class MovieCollection {
 
     public void setCreation_date(LocalDateTime creation_date) {
         this.creation_date = creation_date;
+    }
+
+    public List<TVSeries> getTvSeries() {
+        return tvSeries;
+    }
+
+    public void setTvSeries(List<TVSeries> tvSeries) {
+        this.tvSeries = tvSeries;
     }
 }

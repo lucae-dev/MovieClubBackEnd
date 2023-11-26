@@ -22,6 +22,12 @@ public class UserController {
     public MovieRatingService movieRatingService;
 
 
+
+    @PostMapping(path = "/registerDeviceToken")
+    public String registerDeviceToken(@RequestParam Long userId, @RequestParam String deviceToken){
+        return userService.registerUserToken(userId, deviceToken);
+    }
+
     @PutMapping(path = "/{followedId}/follow")
     public boolean followUser(@AuthenticationPrincipal User followerUser, @PathVariable Long followedId){
         System.out.println("user Controller");

@@ -1,5 +1,6 @@
 package com.movies.movie.app.MovieCollection;
 
+import com.movies.movie.app.TVSeries.TVSeries;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.movie.MovieDTO;
 import com.movies.movie.app.user.User;
@@ -8,7 +9,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 
-import java.net.URLDecoder;
 import java.util.List;
 
 @RestController
@@ -33,6 +33,11 @@ public class MovieCollectionController {
         return movieCollectionService.addMovie(user, id, movie);
     }
 
+    @PostMapping("/{id}/addSeries")
+    public boolean addSeries(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody TVSeries tvSeries) {
+        return movieCollectionService.addTVSeries(user, id, tvSeries);
+    }
+
 
     //ASSOLUTAMENTE OTTIMIZZARE QUESTE TRE NON RITORNARE MOVIECOLLECTION E CHIEDERE SOLO ID MOVIE PER RIDURRE TRAFFICO!!!!!
     @PostMapping("/addToSeen")
@@ -40,13 +45,29 @@ public class MovieCollectionController {
         return movieCollectionService.addToSeen(user, movie);
     }
 
+    @PostMapping("/addSeriesToSeen")
+    public boolean addSeriesToSeen(@AuthenticationPrincipal User user, @RequestBody TVSeries tvSeries) {
+        return movieCollectionService.addToSeen(user, tvSeries);
+    }
+
     @PostMapping("/addToBeSeen")
     public boolean addMovieToBeSeen(@AuthenticationPrincipal User user, @RequestBody Movie movie) {
         return movieCollectionService.addToBeSeen(user, movie);
     }
+
+    @PostMapping("/addSeriesToBeSeen")
+    public boolean addMovieToBeSeen(@AuthenticationPrincipal User user, @RequestBody TVSeries tvSeries) {
+        return movieCollectionService.addToBeSeen(user, tvSeries);
+    }
+
     @PostMapping("/addToLiked")
     public boolean addToLiked(@AuthenticationPrincipal User user, @RequestBody Movie movie) {
         return movieCollectionService.like(user, movie);
+    }
+
+    @PostMapping("/addSeriesToLiked")
+    public boolean addSeriesToLiked(@AuthenticationPrincipal User user, @RequestBody TVSeries tvSeries) {
+        return movieCollectionService.like(user, tvSeries);
     }
 
     //change names, for movies in movies collections here
@@ -65,10 +86,21 @@ public class MovieCollectionController {
         return movieCollectionService.dislike(user, movie);
     }
 
+    @PostMapping("/removeSeriesFromLiked")
+    public boolean removeSeriesFromLiked(@AuthenticationPrincipal User user, @RequestBody TVSeries tvSeries) {
+        return movieCollectionService.dislike(user, tvSeries);
+    }
+
+
 
     @PostMapping("/{id}/addMovies")
     public MovieCollectionDTO addMovies(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody List<Movie> movies) {
         return movieCollectionService.addMovies(user, id, movies);
+    }
+
+    @PostMapping("/{id}/addSeries")
+    public MovieCollectionDTO addSeries(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody List<TVSeries> tvSeries) {
+        return movieCollectionService.addTVSeries(user, id, tvSeries);
     }
 
     @PostMapping("/{id}/setDescription")
@@ -81,9 +113,20 @@ public class MovieCollectionController {
         return movieCollectionService.removeMovie(user.getId(), id, movie);
     }
 
+    @PostMapping("/{id}/removeSeries")
+    public Boolean removeSeries(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody TVSeries tvSeries) {
+        return movieCollectionService.removeSeries(user.getId(), id, tvSeries);
+    }
+
     @PostMapping("/{id}/removeMovies")
     public MovieCollectionDTO removeMovies(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody List<Movie> movies) {
         return movieCollectionService.removeMovies(user, id, movies);
+    }
+
+
+    @PostMapping("/{id}/removeSerieses")
+    public MovieCollectionDTO removeTVs(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody List<TVSeries> tvSeries) {
+        return movieCollectionService.removeTVSerieses(user, id, tvSeries);
     }
 
 

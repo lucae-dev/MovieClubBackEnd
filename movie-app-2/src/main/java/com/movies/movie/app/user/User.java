@@ -4,6 +4,7 @@ package com.movies.movie.app.user;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.movies.movie.app.FCMToken.DeviceToken;
 import com.movies.movie.app.MovieCollection.MovieCollection;
 import com.movies.movie.app.MovieRating.MovieRating;
 import jakarta.persistence.*;
@@ -90,6 +91,10 @@ public class User implements UserDetails {
     //this one has to be incremented in service, with a trigger there would be an if statement for every movie added in a collection
     private int seen;
 
+    @OneToMany(mappedBy = "user")
+    private Set<DeviceToken> deviceTokens;
+
+
 
     @Override
     public int hashCode() {
@@ -109,6 +114,8 @@ public class User implements UserDetails {
         this.username = username;
         this.email = email;
     }
+
+
 
     public User(Long id, String username, String email, String propic) {
         this.id = id;
@@ -282,5 +289,27 @@ public class User implements UserDetails {
         this.propic = propic;
     }
 
+    public boolean isLocked() {
+        return locked;
+    }
 
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
+    public Set<DeviceToken> getDeviceTokens() {
+        return deviceTokens;
+    }
+
+    public void setDeviceTokens(Set<DeviceToken> deviceTokens) {
+        this.deviceTokens = deviceTokens;
+    }
 }
