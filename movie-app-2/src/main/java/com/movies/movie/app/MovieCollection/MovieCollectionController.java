@@ -98,8 +98,8 @@ public class MovieCollectionController {
         return movieCollectionService.addMovies(user, id, movies);
     }
 
-    @PostMapping("/{id}/addSeries")
-    public MovieCollectionDTO addSeries(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody List<TVSeries> tvSeries) {
+    @PostMapping("/{id}/addSerieses")
+    public MovieCollectionDTO addSerieses(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody List<TVSeries> tvSeries) {
         return movieCollectionService.addTVSeries(user, id, tvSeries);
     }
 

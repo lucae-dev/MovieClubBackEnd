@@ -16,48 +16,17 @@ import java.io.InputStream;
 
 
 @Configuration
-@EnableConfigurationProperties(FirebaseProperties.class)
 public class FirebaseInitializer {
-
-
-    private final FirebaseProperties firebaseProperties;
-
-    public FirebaseInitializer(FirebaseProperties firebaseProperties) {
-        this.firebaseProperties = firebaseProperties;
-    }
-
     @Bean
-    GoogleCredentials googleCredentials() {
-        try {
-            if (firebaseProperties.getServiceAccount() != null) {
-                try( InputStream is = firebaseProperties.getServiceAccount().getInputStream()) {
-                    return GoogleCredentials.fromStream(is);
-                }
-            }
-            else {
-                // Use standard credentials chain. Useful when running inside GKE
-                return GoogleCredentials.getApplicationDefault();
-            }
-        }
-        catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-    }
+    public void initializeFirebase() throws IOException {
+        InputStream serviceAccount = getClass().getResourceAsStream("/poppi-ee470-firebase-adminsdk-22rpp-5dd20d587c.json");
 
-
-    @Bean
-    FirebaseApp firebaseApp(GoogleCredentials credentials) {
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(credentials)
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
 
-        return FirebaseApp.initializeApp(options);
+        if (FirebaseApp.getApps().isEmpty()) {
+            FirebaseApp.initializeApp(options);
+        }
     }
-
-
-    @Bean
-    FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
-        return FirebaseMessaging.getInstance(firebaseApp);
-    }
-
 }
