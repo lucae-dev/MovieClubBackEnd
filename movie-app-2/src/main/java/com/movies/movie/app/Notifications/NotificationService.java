@@ -54,6 +54,7 @@ public class NotificationService {
         String title = "Hai un nuovo follower!";
         for (DeviceToken deviceToken : recipient.getDeviceTokens()){
             try {
+                System.out.println("This is the token: " + deviceToken.getToken().toString());
                 sendNotification(deviceToken.getToken(), title, body);
             } catch (Exception e) {
                 e.printStackTrace();
