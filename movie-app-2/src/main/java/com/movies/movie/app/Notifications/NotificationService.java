@@ -17,6 +17,9 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
+
+
+
     public String sendNotification(String token, String title, String body) throws Exception {
         Message message = Message.builder()
                 .setToken(token)
@@ -50,12 +53,14 @@ public class NotificationService {
         notification.setTriggerUserName(follower.getUsername());
         notification.setTriggerUserImage(follower.getPropic());
         notification.setAttachedImageUrl(recipient.getPropic());
+        notificationRepository.save(notification);
         String body = follower.getUsername().toString() + " ha iniziato a seguirti";
         String title = "Hai un nuovo follower!";
         for (DeviceToken deviceToken : recipient.getDeviceTokens()){
             try {
                 System.out.println("This is the token: " + deviceToken.getToken().toString());
-                sendNotification(deviceToken.getToken(), title, body);
+                String resp = sendNotification(deviceToken.getToken(), title, body);
+                System.out.println(resp);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -71,6 +76,8 @@ public class NotificationService {
         notification.setTriggerUserName(follower.getUsername());
         notification.setTriggerUserImage(follower.getPropic());
         notification.setAttachedImageUrl(recipient.getPropic());
+        notificationRepository.save(notification);
+
         String body = follower.getUsername().toString() + " ha salvato la tua tua collezione";
         String title = collectionName + " ha fatto colpo!";
         for (DeviceToken deviceToken : recipient.getDeviceTokens()){

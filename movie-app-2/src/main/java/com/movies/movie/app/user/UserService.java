@@ -275,6 +275,10 @@ public class UserService {
         System.out.println("saving Token service");
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+       Optional<DeviceToken> checkTkn = deviceTokenRepository.findByToken(deviceTokenStr);
+        if(!checkTkn.isEmpty()){
+            return checkTkn.get().getToken();
+        }
         DeviceToken deviceToken = new DeviceToken();
         deviceToken.setToken(deviceTokenStr);
         deviceToken.setUser(user);
