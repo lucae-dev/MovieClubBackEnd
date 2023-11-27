@@ -1,7 +1,6 @@
 package com.movies.movie.app.Notifications;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.*;
 import com.movies.movie.app.FCMToken.DeviceToken;
 import com.movies.movie.app.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +20,33 @@ public class NotificationService {
 
 
     public String sendNotification(String token, String title, String body) throws Exception {
+
+
+
         Message message = Message.builder()
                 .setToken(token)
-                .putData("title", title)
-                .putData("body", body)
+                .setNotification(com.google.firebase.messaging.Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build())
+                .setAndroidConfig(AndroidConfig.builder()
+                        .setPriority(AndroidConfig.Priority.HIGH)
+                        .setNotification(AndroidNotification.builder()
+                                .setTitle(title) // Android-specific title, if different
+                                .setBody(body) // Android-specific body, if different
+                                .build())
+                        .build())
+                .setApnsConfig(ApnsConfig.builder()
+                        .setAps(Aps.builder()
+                                .setAlert(ApsAlert.builder()
+                                        .setTitle(title) // iOS-specific title, if different
+                                        .setBody(body) // iOS-specific body, if different
+                                        .build())
+                                .setContentAvailable(true)
+                                //.setPriority(10) // APNs priority 10 for 'high'
+                                .build())
+                        .build())
                 .build();
-
         return FirebaseMessaging.getInstance().send(message);
     }
 
