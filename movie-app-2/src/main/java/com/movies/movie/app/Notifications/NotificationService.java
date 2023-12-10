@@ -3,6 +3,7 @@ package com.movies.movie.app.Notifications;
 import com.google.firebase.messaging.*;
 import com.movies.movie.app.FCMToken.DeviceToken;
 import com.movies.movie.app.user.User;
+import com.movies.movie.app.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,8 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-
+    @Autowired
+    private UserRepository userRepository;
 
 
     public String sendNotification(String token, String title, String body) throws Exception {
@@ -110,5 +112,10 @@ public class NotificationService {
 
     }
 
+    public List<Notification> getUserNotifications(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
+        List<Notification> existingNotifications = notificationRepository.findByRecipientIdOrderByTimestampDesc(userId);
+        return existingNotifications;
+    }
 
 }

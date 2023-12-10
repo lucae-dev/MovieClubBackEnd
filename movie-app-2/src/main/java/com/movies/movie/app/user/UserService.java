@@ -1,5 +1,6 @@
 package com.movies.movie.app.user;
 
+import com.movies.movie.app.Config.JwtService;
 import com.movies.movie.app.FCMToken.DeviceToken;
 import com.movies.movie.app.FCMToken.DeviceTokenRepository;
 import com.movies.movie.app.MovieCollection.MovieCollection;
@@ -7,7 +8,10 @@ import com.movies.movie.app.MovieCollection.MovieCollectionDTO;
 import com.movies.movie.app.MovieCollection.MovieCollectionRepository;
 import com.movies.movie.app.MovieCollection.MovieCollectionService;
 import com.movies.movie.app.MovieRating.MovieRating;
+import com.movies.movie.app.Notifications.Notification;
 import com.movies.movie.app.Notifications.NotificationService;
+import com.movies.movie.app.Token.Token;
+import com.movies.movie.app.Token.TokenRepository;
 import com.movies.movie.app.auth.AuthenticationService;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.movie.MovieDTO;
@@ -287,6 +291,24 @@ public class UserService {
 
         return deviceToken.getToken();
     }
+
+
+
+    public void removeUserToken(Long userId, String deviceTokenStr){
+        DeviceToken token = deviceTokenRepository.findByToken(deviceTokenStr).orElseThrow(()-> new IllegalStateException("Token not ofund"));
+        if(token.getUser().getId().equals(userId)){
+            deviceTokenRepository.delete(token);
+        }
+    }
+
+    public List<Notification> getUserNotifications(Long userId){
+        return notificationService.getUserNotifications(userId);
+    }
+
+
+
+
+
 
 //
 

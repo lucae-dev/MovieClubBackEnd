@@ -312,4 +312,6 @@ public class User implements UserDetails {
     public void setDeviceTokens(Set<DeviceToken> deviceTokens) {
         this.deviceTokens = deviceTokens;
     }
+
+
 }

@@ -22,12 +22,26 @@ public class UserController {
     public MovieRatingService movieRatingService;
 
 
+    @GetMapping(path = "/checkToken")
+    public boolean checkToken(@AuthenticationPrincipal User user){
+        if(user != null){
+            return true;
+        }
+        return false;
+    }
 
     @PostMapping(path = "/registerDeviceToken")
     public String registerDeviceToken(@AuthenticationPrincipal User user, @RequestParam String deviceToken){
         System.out.println("saving Token");
         return userService.registerUserToken(user.getId(), deviceToken);
     }
+
+    @PostMapping(path = "/removeDeviceToken")
+    public void removeDeviceToken(@AuthenticationPrincipal User user, @RequestParam String deviceToken){
+        System.out.println("removing Token");
+        userService.removeUserToken(user.getId(), deviceToken);
+    }
+
 
     @PutMapping(path = "/{followedId}/follow")
     public boolean followUser(@AuthenticationPrincipal User followerUser, @PathVariable Long followedId){

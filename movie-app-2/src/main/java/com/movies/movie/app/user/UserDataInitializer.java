@@ -79,7 +79,10 @@ public class UserDataInitializer {
                 likedCollection.setVisible(Boolean.TRUE);
                 user.setLikedCollection(likedCollection);
 
-                userRepository.save(user);
+                if(!userRepository.findByUsername(user.getUsername()).isPresent()){
+                    userRepository.save(user);
+
+                }
             }
         }
     }
