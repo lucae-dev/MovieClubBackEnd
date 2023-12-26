@@ -5,6 +5,8 @@ import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.movie.MovieDTO;
 import com.movies.movie.app.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
@@ -136,33 +138,42 @@ public class MovieCollectionController {
     }
 
     @GetMapping("/myCollections")
-    public List<MovieCollectionDTO> getMyCollections(@AuthenticationPrincipal User user) {
-        return movieCollectionService.getMyCollections(user);
+    public List<MovieCollectionDTO> getMyCollections(@AuthenticationPrincipal User user,
+                                                     @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable =  PageRequest.of(page, size);
+        return movieCollectionService.getMyCollections(user, pageable);
     }
 
 
 
 
     @GetMapping("/myCollectionsIsMoviePresent")
-    public List<MovieCollectionDTO> getMyCollectionsIsMoviePresent(@AuthenticationPrincipal User user, @RequestParam Long movieId) {
-        return movieCollectionService.getMyCollectionsIsMoviePresent(user,movieId);
+    public List<MovieCollectionDTO> getMyCollectionsIsMoviePresent(@AuthenticationPrincipal User user,
+                                                                   @RequestParam Long movieId,
+                                                                   @RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable =  PageRequest.of(page, size);
+
+        return movieCollectionService.getMyCollectionsIsMoviePresent(user,movieId, pageable);
     }
 
     @GetMapping("/UserCollections")
-    public List<MovieCollectionDTO> getUserCollections(@AuthenticationPrincipal User userMain, @RequestParam Long userId) {
-        return movieCollectionService.getUserCollections(userMain, userId);
+    public List<MovieCollectionDTO> getUserCollections(@AuthenticationPrincipal User userMain,
+                                                       @RequestParam Long userId,
+                                                       @RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return movieCollectionService.getUserCollections(userMain, userId, pageable);
     }
 
     @GetMapping("/savedCollections")
-    public List<MovieCollectionDTO> getSavedCollections(@AuthenticationPrincipal User user) {
-        return movieCollectionService.getSavedCollections(user);
+    public List<MovieCollectionDTO> getSavedCollections(@AuthenticationPrincipal User user,
+                                                        @RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return movieCollectionService.getSavedCollections(user, pageable);
     }
-
-    @GetMapping("/all")
-    public List<MovieCollectionDTO> getAllCollections(@AuthenticationPrincipal User user) {
-        return movieCollectionService.getAllCollections(user);
-    }
-
 
     @GetMapping("/getMovies")
     public List<MovieDTO> getMoviesFromColl(@AuthenticationPrincipal User user, @RequestParam Long id, @RequestParam String language){
