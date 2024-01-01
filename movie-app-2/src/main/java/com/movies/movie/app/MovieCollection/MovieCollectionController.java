@@ -54,6 +54,8 @@ public class MovieCollectionController {
 
     @PostMapping("/addToBeSeen")
     public boolean addMovieToBeSeen(@AuthenticationPrincipal User user, @RequestBody Movie movie) {
+        System.out.println("adding");
+
         return movieCollectionService.addToBeSeen(user, movie);
     }
 

@@ -1,36 +1,24 @@
 package com.movies.movie.app.user;
 
-import com.movies.movie.app.Config.JwtService;
 import com.movies.movie.app.FCMToken.DeviceToken;
 import com.movies.movie.app.FCMToken.DeviceTokenRepository;
-import com.movies.movie.app.MovieCollection.MovieCollection;
 import com.movies.movie.app.MovieCollection.MovieCollectionDTO;
-import com.movies.movie.app.MovieCollection.MovieCollectionRepository;
 import com.movies.movie.app.MovieCollection.MovieCollectionService;
-import com.movies.movie.app.MovieRating.MovieRating;
 import com.movies.movie.app.Notifications.Notification;
 import com.movies.movie.app.Notifications.NotificationService;
-import com.movies.movie.app.Token.Token;
-import com.movies.movie.app.Token.TokenRepository;
 import com.movies.movie.app.auth.AuthenticationService;
 import com.movies.movie.app.movie.Movie;
-import com.movies.movie.app.movie.MovieDTO;
 import com.movies.movie.app.movie.MovieService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
-
-import java.sql.SQLOutput;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -267,7 +255,7 @@ public class UserService {
         List<Movie> seenMovies = user.getSeenCollection().getMovies().subList(0,Integer.min( user.getSeenCollection().getMovies().size(), 9));
         if(!seenMovies.isEmpty()) {
             MovieCollectionDTO movieCollectionDTO =movieCollectionService.convertToDTO(user.getSeenCollection());
-                  movieCollectionDTO.setMovies(movieService.addLikedToDTOList(userMain2, movieService.convertListToDTO(movieService.addProvidersToList(seenMovies))));
+                  movieCollectionDTO.setMovies(movieService.addLikedToDTOList(userMain2, movieService.convertListToDTO(seenMovies)));
             userDTO.setSeenCollection(movieCollectionDTO);
         }
         return addFollowedToDTO( userMain2, userDTO);
@@ -306,7 +294,10 @@ public class UserService {
     }
 
 
-
+public void deleteAccount(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
+         userRepository.delete(user);
+}
 
 
 

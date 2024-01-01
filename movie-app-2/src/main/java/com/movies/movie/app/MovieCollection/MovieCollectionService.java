@@ -3,8 +3,6 @@ package com.movies.movie.app.MovieCollection;
 import com.movies.movie.app.Notifications.NotificationService;
 import com.movies.movie.app.TVSeries.TVSeries;
 import com.movies.movie.app.TVSeries.TVSeriesRepository;
-import com.movies.movie.app.WatchProvider.WatchProvider;
-import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.movie.MovieDTO;
 import com.movies.movie.app.movie.MovieRepository;
@@ -12,17 +10,17 @@ import com.movies.movie.app.movie.MovieService;
 import com.movies.movie.app.user.User;
 import com.movies.movie.app.user.UserDTO;
 import com.movies.movie.app.user.UserRepository;
-import org.hibernate.Hibernate;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,7 +107,7 @@ public class MovieCollectionService {
 
         for(Movie m : movieCollection.getMovies()){
             MovieDTO moviet =new MovieDTO();
-            moviet = movieService.convertToDTO(movieService.getMovieDetails(m.getId(), language));
+            moviet = movieService.convertToDTO(m);
             final Long idTemp = moviet.getId();
             if(user.getLikedCollection().getMovies().stream().anyMatch(movieLiked -> Objects.equals(movieLiked.getId(),idTemp))){
                 moviet.setLiked(Boolean.TRUE);
@@ -129,7 +127,7 @@ public class MovieCollectionService {
 
         for(Movie m : user.getSeenCollection().getMovies()){
             MovieDTO moviet =new MovieDTO();
-            moviet = movieService.convertToDTO(movieService.addProviders(movieService.getMovieDetails(m.getId(), language)));
+            moviet = movieService.convertToDTO(m);
             final Long idTemp = moviet.getId();
             if(user.getLikedCollection().getMovies().stream().anyMatch(movieLiked -> Objects.equals(movieLiked.getId(),idTemp))){
                 moviet.setLiked(Boolean.TRUE);
@@ -210,16 +208,19 @@ public class MovieCollectionService {
         return addFollowedToCollections(user, collectionsDTOs);
 
     }
+    @Transactional
     public MovieCollectionDTO createMovieCollection(User user2, MovieCollection movieCollection) {
         movieCollection.setCreation_date(LocalDateTime.now());
         movieCollection.setOwner(user2);
         movieCollection.setVisible(Boolean.TRUE);
+        movieCollection.setType(MovieCollectionType.PERSONAL);
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
         user.getMyCollections().add(movieCollection);
         user = userRepository.saveAndFlush(user);
         return convertToDTO(user.getMyCollections().stream().filter(movieCollection1 -> movieCollection1.getCreation_date().equals(movieCollection.getCreation_date())).findFirst().orElseThrow());
     }
 
+    @Transactional
     public boolean addMovie(User user, Long id, Movie movie) {
         if(!movieRepository.existsById(movie.getId())){
             movieRepository.save(movie);
@@ -240,7 +241,7 @@ public class MovieCollectionService {
 
     }
 
-
+    @Transactional
     public boolean addTVSeries(User user, Long id, TVSeries tvSeries) {
         if(!tvSeriesRepository.existsById(tvSeries.getId())){
             tvSeriesRepository.save(tvSeries);
@@ -261,26 +262,33 @@ public class MovieCollectionService {
 
     }
 
+
+    @Transactional
     public boolean addToSeen(User user2, Movie movie) {
         if(!movieRepository.existsById(movie.getId())){
             movieRepository.save(movie);
         }
-        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
-        MovieCollection seen = user.getSeenCollection();
+        //User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
+        MovieCollection seen = movieCollectionRepository.findCollectionByOwnerAndType(user2.getId(), MovieCollectionType.SEEN);
+        MovieCollection toBeSeen = movieCollectionRepository.findCollectionByOwnerAndType(user2.getId(), MovieCollectionType.WATCHLIST);
         if (seen.getMovies().stream()
                 .anyMatch(movie2 -> Objects.equals(movie2.getId(), movie.getId()))) {
-            user.getToBeSeenCollection().getMovies().removeIf(m -> Objects.equals(m.getId(), movie.getId()));
-
+            System.out.println("already there");
             return Boolean.TRUE;
         } else {
-            user.getToBeSeenCollection().getMovies().removeIf(m -> Objects.equals(m.getId(), movie.getId()));
-            user.getSeenCollection().getMovies().add(movie);
-            userRepository.save(user);
-            return user.getSeenCollection().getMovies().stream().anyMatch(movie1 -> Objects.equals(movie1.getId(),movie.getId()));
+            System.out.println("adding");
+          if( toBeSeen.getMovies().removeIf(m -> Objects.equals(m.getId(), movie.getId()))){
+              movieCollectionRepository.save(toBeSeen);
+          }
+
+          return movieCollectionRepository.addMovieToCollection(seen.getId(), movie.getId())>0;
+
         }
 
     }
 
+    //fix it like for movies this will cause errors
+    @Transactional
     public boolean addToSeen(User user2, TVSeries tvSeries) {
         if(!tvSeriesRepository.existsById(tvSeries.getId())){
             tvSeriesRepository.save(tvSeries);
@@ -301,31 +309,31 @@ public class MovieCollectionService {
 
     }
 
-
+    @Transactional
     public boolean addToBeSeen(User user2, Movie movie) {
         if(!movieRepository.existsById(movie.getId())){
             movieRepository.save(movie);
         }
-        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
-        MovieCollection toSee = user.getToBeSeenCollection();
-        if (toSee.getMovies().stream()
+        //User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
+        MovieCollection seen = movieCollectionRepository.findCollectionByOwnerAndType(user2.getId(), MovieCollectionType.SEEN);
+        MovieCollection toBeSeen = movieCollectionRepository.findCollectionByOwnerAndType(user2.getId(), MovieCollectionType.WATCHLIST);
+        if (toBeSeen.getMovies().stream()
                 .anyMatch(movie2 -> Objects.equals(movie2.getId(), movie.getId()))) {
-            user.getSeenCollection().getMovies().removeIf(m -> Objects.equals(m.getId(), movie.getId()));
-
+            System.out.println("already there");
             return Boolean.TRUE;
         } else {
+            System.out.println("adding");
+            if( seen.getMovies().removeIf(m -> Objects.equals(m.getId(), movie.getId()))){
+                movieCollectionRepository.save(seen);
+            }
 
+            return movieCollectionRepository.addMovieToCollection(toBeSeen.getId(), movie.getId())>0;
 
-            user.getSeenCollection().getMovies().removeIf(m -> Objects.equals(m.getId(), movie.getId()));
-
-            user.getToBeSeenCollection().getMovies().add(movie);
-            userRepository.save(user);
-            return user.getToBeSeenCollection().getMovies().stream().anyMatch(movie1 -> Objects.equals(movie1.getId(),movie.getId()));
         }
-
     }
 
-
+    //fix it like the one for movies, this will cause unexpected behaviours
+    @Transactional
     public boolean addToBeSeen(User user2, TVSeries tvSeries) {
         if(!tvSeriesRepository.existsById(tvSeries.getId())){
             tvSeriesRepository.save(tvSeries);
@@ -349,33 +357,20 @@ public class MovieCollectionService {
 
     }
 
+    @Transactional
     public boolean like(User user2, Movie movie) {
         if(!movieRepository.existsById(movie.getId())){
             movieRepository.save(movie);
         }
-        System.out.println("Ok BRAH 1");
-
-        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
-        MovieCollection likedCollection = user.getLikedCollection();
-        if (likedCollection.getMovies().stream()
-                .anyMatch(movie2 -> movie2.getId() == movie.getId())) {
-
-
-        } else {
-            System.out.println("Ok BRAH else");
-
-            user.getLikedCollection().getMovies().add(movie);
-            userRepository.saveAndFlush(user);
-        }
-
-        if(user.getLikedCollection().getMovies().stream()
-                .anyMatch(movie2 -> movie2.getId() == movie.getId())){
+      MovieCollection liked = movieCollectionRepository.findCollectionByOwnerAndType(user2.getId(), MovieCollectionType.FAVOURITES);
+        if(liked.getMovies().stream().anyMatch(movie1 -> movie1.getId().equals(movie.getId()))){
             return Boolean.TRUE;
         }
-
-        return Boolean.FALSE;
+        return movieCollectionRepository.addMovieToCollection(liked.getId(), movie.getId())>0;
     }
 
+    //fix it like for the on for movies this will cause unexpected behaviours
+    @Transactional
     public boolean like(User user2, TVSeries tvSeries) {
         if(!tvSeriesRepository.existsById(tvSeries.getId())){
             tvSeriesRepository.save(tvSeries);
@@ -403,25 +398,21 @@ public class MovieCollectionService {
         return Boolean.FALSE;
     }
 
+    @Transactional
     public boolean dislike(User user2, Movie movie) {
 
-        User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
-        MovieCollection likedCollection = user.getLikedCollection();
-        if (likedCollection.getMovies().stream()
-                .anyMatch(movie2 ->Objects.equals( movie2.getId() , movie.getId()))) {
-
-            user.getLikedCollection().getMovies().removeIf(m->movie.getId().equals(m.getId()));
-            userRepository.save(user);
-            System.out.println("remove from liked");
-
+        if(!movieRepository.existsById(movie.getId())){
+            movieRepository.save(movie);
         }
-        if(user.getLikedCollection().getMovies().stream()
-                .anyMatch(movie2 -> movie2.getId() == movie.getId())){
-            return Boolean.TRUE;
+        MovieCollection liked = movieCollectionRepository.findCollectionByOwnerAndType(user2.getId(), MovieCollectionType.FAVOURITES);
+        if(!liked.getMovies().stream().anyMatch(movie1 -> movie1.getId().equals(movie.getId()))){
+            return Boolean.FALSE;
         }
-        return Boolean.FALSE;
+        return !(movieCollectionRepository.removeMovieFromCollection(liked.getId(), movie.getId())>0);
     }
 
+    //modify like the others because of unexpected behaviours
+    @Transactional
     public boolean dislike(User user2, TVSeries tvSeries) {
 
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
@@ -441,6 +432,7 @@ public class MovieCollectionService {
         return Boolean.FALSE;
     }
 
+    @Transactional
     public Long followCollection(User user2, Long id ) {
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException(" user not found!"));
         MovieCollection collection = movieCollectionRepository.findById(id).orElseThrow(()->new IllegalStateException(" collection not found!"));
@@ -459,6 +451,7 @@ public class MovieCollectionService {
     }
 
 
+    @Transactional
     public MovieCollectionDTO addMovies(User user, Long id, List<Movie> movies) {
             movieRepository.saveAll(movies);
 
@@ -473,6 +466,7 @@ public class MovieCollectionService {
     }
 
 
+    @Transactional
     public MovieCollectionDTO addTVSeries(User user, Long id, List<TVSeries> tvSeries) {
         tvSeriesRepository.saveAll(tvSeries);
 
@@ -486,7 +480,7 @@ public class MovieCollectionService {
 
     }
 
-
+    @Transactional
     public MovieCollectionDTO setDescription(User user2, Long id, String description) {
        User user=  userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("Collection not found"));
        MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(()->new IllegalStateException("Collection not found"));
@@ -498,6 +492,7 @@ public class MovieCollectionService {
 
     }
 
+    @Transactional
     public Boolean removeMovie(Long userId, Long id, Movie movie) {
 
         User user = userRepository.findById(userId).orElseThrow(()-> new IllegalStateException("user not found"));
@@ -516,6 +511,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
     }
 
 
+    @Transactional
     public Boolean removeSeries(Long userId, Long id, TVSeries tvSeries) {
 
         User user = userRepository.findById(userId).orElseThrow(()-> new IllegalStateException("user not found"));
@@ -533,7 +529,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
 
     }
 
-
+    @Transactional
     public MovieCollectionDTO removeMovies(User user, Long id, List<Movie> movies) {
         MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
         if (movieCollection.getOwner().getId() == user.getId()) {
@@ -552,6 +548,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
         //search movie collection by name
     }
 
+    @Transactional
     public MovieCollectionDTO removeTVSerieses(User user, Long id, List<TVSeries> tvSeries) {
         MovieCollection movieCollection = movieCollectionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Movie Collection not found"));
         if (movieCollection.getOwner().getId() == user.getId()) {
@@ -570,6 +567,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
         //search movie collection by name
     }
 
+    @Transactional
     public MovieCollectionDTO addFollowedToCollection(List<MovieCollectionDTO> followedCollectionDTOS, MovieCollectionDTO movieCollectionDTO){
         if(followedCollectionDTOS.stream().anyMatch(movieCollectionDTO1 -> Objects.equals(movieCollectionDTO1.getId(), movieCollectionDTO.getId()))){
             movieCollectionDTO.setFollowed(Boolean.TRUE);
@@ -578,6 +576,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
         return movieCollectionDTO;
     }
 
+    @Transactional
     public List<MovieCollectionDTO> addFollowedToCollections(User userMain, List<MovieCollectionDTO> movieCollectionDTOs){
         User userMe = userRepository.findById(userMain.getId()).orElseThrow(()->new IllegalStateException("user not found"));
         List<MovieCollectionDTO> followedCollectionDTOS =convertListToDTO( userMe.getFollowedCollections());
@@ -587,6 +586,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
         return movieCollectionDTOs;
     }
 
+    @Transactional
     public List<MovieCollectionDTO> getUserCollections(User userMain, Long userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("user not found"));
 
@@ -595,6 +595,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
 
     }
 
+    @Transactional
     public MovieCollectionDTO getUserSeenCollection(User userMain, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("user not found"));
         User userMe = userRepository.findById(userMain.getId()).orElseThrow(()->new IllegalStateException("user not found"));
@@ -605,6 +606,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
     }
 
 
+    @Transactional
     public boolean addToFavourite(Long userId, Long collectionId) {
         User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
         System.out.println(" addFavourite");
@@ -627,6 +629,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
         return Boolean.FALSE;
     }
 
+    @Transactional
     public boolean removeFromFavourite(Long userId, Long collectionId) {
         User user = userRepository.findById(userId).orElseThrow(()->new IllegalStateException("User not found"));
         MovieCollection movieCollection = movieCollectionRepository.findById(collectionId).orElseThrow(()->new IllegalStateException("Collection not found"));

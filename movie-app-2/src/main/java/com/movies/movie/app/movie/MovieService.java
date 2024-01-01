@@ -1,14 +1,10 @@
 package com.movies.movie.app.movie;
 
 import com.movies.movie.app.Genre.Genre;
-import com.movies.movie.app.TMDB.TMDBService;
-import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
 import com.movies.movie.app.user.User;
 import com.movies.movie.app.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import com.movies.movie.app.WatchProvider.WatchProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +12,8 @@ import java.util.Objects;
 
 @Service
 public class MovieService {
-    @Autowired
-    private TMDBService tmdbService;
+    //@Autowired
+   // private TMDBService tmdbService;
 
     @Autowired
     private MovieRepository movieRepository;
@@ -77,7 +73,7 @@ public class MovieService {
         return movieDTOS;
     }
 
-    public Movie addProviders(Movie movie){
+    /*public Movie addProviders(Movie movie){
         WatchProvidersContainer container = tmdbService.getMovieWatchProvidersCountry(movie.getId(), "IT");
         if (container != null) {
             List<WatchProvider> flatrate = container.getFlatrate();
@@ -115,7 +111,7 @@ public class MovieService {
         }
         return movies;
     }
-
+*/
     public MovieDTO addLikedToDTO(User user2, MovieDTO movieDTO){
         User user = userRepository.findById(user2.getId()).orElseThrow(()->new IllegalStateException("User not found"));
         if(user.getLikedCollection().getMovies().stream().anyMatch(movieLiked -> Objects.equals(movieLiked.getId(),movieDTO.getId()))){
@@ -139,6 +135,7 @@ public class MovieService {
         return movieDTOS;
     }
 
+    /*
     public List<MovieDTO> searchMovies(User user,String keyword, String primaryReleaseYear,
                                         String region,
                                         String language){
@@ -148,7 +145,6 @@ public class MovieService {
         movieRepository.saveAll(movies);
         return addLikedToDTOList(user,convertListToDTO(movies));
     }
-
 
 
 
@@ -195,7 +191,7 @@ public class MovieService {
         movieRepository.saveAll(movies);
         return movies;
     }
-*/
+
     public List<Movie> getTrendingMovies(){
 
         List<Movie> movies = tmdbService.getTrendingMovies();
@@ -249,7 +245,7 @@ public class MovieService {
     public List<MovieDTO> getMovieRecommendations(User user, Long movieId, String language, int page){
         return  addLikedToDTOList(user, convertListToDTO(addProvidersToList(tmdbService.getMovieRecommendations(movieId, language, page))));
     }
-
+*/
 
 
 }

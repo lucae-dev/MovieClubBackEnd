@@ -1,31 +1,15 @@
 package com.movies.movie.app.TMDB;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.movies.movie.app.MovieRating.MovieRatingService;
-import com.movies.movie.app.People.Person;
-import com.movies.movie.app.WatchProvider.WatchProvider;
 import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
 import com.movies.movie.app.movie.Movie;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-
-
-import org.springframework.stereotype.Service;
-        import org.springframework.web.reactive.function.client.WebClient;
-        import reactor.core.publisher.Mono;
+import java.util.List;
+import java.util.Map;
 
 
 @Service

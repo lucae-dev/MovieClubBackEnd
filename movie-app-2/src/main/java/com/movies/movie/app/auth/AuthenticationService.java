@@ -1,15 +1,16 @@
 package com.movies.movie.app.auth;
+
 import com.movies.movie.app.Config.JwtService;
 import com.movies.movie.app.Mail.EmailService;
 import com.movies.movie.app.Mail.HtmlContent;
 import com.movies.movie.app.MovieCollection.MovieCollection;
+import com.movies.movie.app.MovieCollection.MovieCollectionType;
 import com.movies.movie.app.Token.Token;
 import com.movies.movie.app.Token.TokenRepository;
 import com.movies.movie.app.Token.TokenType;
 import com.movies.movie.app.user.Role;
 import com.movies.movie.app.user.User;
 import com.movies.movie.app.user.UserRepository;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -48,6 +48,7 @@ public class AuthenticationService {
         seenCollection.setName("Seen");
         seenCollection.setCreation_date(LocalDateTime.now());
         seenCollection.setOwner(user);
+        seenCollection.setType(MovieCollectionType.SEEN);
         seenCollection.setVisible(Boolean.TRUE);
         user.setSeenCollection(seenCollection);
         user.setPropic("https://picsum.photos/seed/"+user.getUsername() +"/300/300");
@@ -56,6 +57,7 @@ public class AuthenticationService {
         toBeSeenCollection.setName("To Be Seen");
         toBeSeenCollection.setCreation_date(LocalDateTime.now());
         toBeSeenCollection.setOwner(user);
+        toBeSeenCollection.setType(MovieCollectionType.WATCHLIST);
         toBeSeenCollection.setVisible(Boolean.TRUE);
         user.setToBeSeenCollection(toBeSeenCollection);
 
@@ -63,6 +65,7 @@ public class AuthenticationService {
         likedCollection.setCreation_date(LocalDateTime.now());
         likedCollection.setName("Liked");
         likedCollection.setOwner(user);
+        likedCollection.setType(MovieCollectionType.FAVOURITES);
         likedCollection.setVisible(Boolean.TRUE);
         user.setLikedCollection(likedCollection);
 

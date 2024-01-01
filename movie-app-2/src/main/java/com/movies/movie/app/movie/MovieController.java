@@ -2,14 +2,11 @@ package com.movies.movie.app.movie;
 
 
 import com.movies.movie.app.MovieRating.MovieRatingService;
-import com.movies.movie.app.WatchProvider.WatchProvidersContainer;
 import com.movies.movie.app.user.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriUtils;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -45,7 +42,7 @@ public class MovieController {
     public MovieDTO isMovieLiked(@AuthenticationPrincipal User user, @RequestBody MovieDTO movie){
         return movieService.addLikedToDTO(user,movie);
     }
-
+/*
     @GetMapping("/discoverMovies")
     public List<MovieDTO> discoverMovies(@AuthenticationPrincipal User user,@RequestParam Integer genreId, @RequestParam String providerIds){
         return movieService.discoverMovies(user,genreId, providerIds);
@@ -76,7 +73,7 @@ public class MovieController {
     public List<Movie> getTrending(){
         return movieService.getTrendingMovies();
     }
-
+*/
 
 
     @GetMapping("/getAll")

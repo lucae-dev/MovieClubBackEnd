@@ -1,6 +1,7 @@
 package com.movies.movie.app.movie;
 
 import com.movies.movie.app.Genre.Genre;
+import com.movies.movie.app.MovieCollection.MovieCollection;
 import com.movies.movie.app.MovieRating.MovieRating;
 import com.movies.movie.app.user.User;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +50,9 @@ public class Movie {
     private String poster_path;
     private String backdrop_path;
     private int votes;
+
+    @ManyToMany(mappedBy = "movies", fetch = FetchType.LAZY)
+    private Set<MovieCollection> collections = new HashSet<>();
 
 
 

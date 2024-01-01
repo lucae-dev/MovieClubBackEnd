@@ -1,14 +1,11 @@
 package com.movies.movie.app.MovieCollection;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.movies.movie.app.TVSeries.TVSeries;
 import com.movies.movie.app.movie.Movie;
 import com.movies.movie.app.user.User;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,6 +24,8 @@ public class MovieCollection {
     @JoinColumn(name="user_id")
     @JsonIgnore
     private User owner;
+
+    private MovieCollectionType type;
 
     private boolean visible;
 
@@ -61,6 +60,12 @@ public class MovieCollection {
         this.name = name;
         this.description = description;
         this.owner = owner;
+    }
+    public MovieCollection(String name,String description, User owner, MovieCollectionType type) {
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+        this.type = type;
     }
 
     public Long getId() {
@@ -113,7 +118,13 @@ public class MovieCollection {
         this.movies = movies;
     }
 
+    public MovieCollectionType getType() {
+        return type;
+    }
 
+    public void setType(MovieCollectionType type) {
+        this.type = type;
+    }
 
     public List<User> getFollowers() {
         return followers;
