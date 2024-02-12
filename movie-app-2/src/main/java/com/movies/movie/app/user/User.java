@@ -45,6 +45,7 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
     private String propic;
+    private String proPicFileId;
     //Firebase token for notifications !!!!!!!
    /* @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     Set<MovieRating> movieRatings;
@@ -128,6 +129,21 @@ public class User implements UserDetails {
         this.password = password;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public String getProPicFileId() {
+        return proPicFileId;
+    }
+
+    public void setProPicFileId(String proPicFileId) {
+        this.proPicFileId = proPicFileId;
+    }
 
     public String getBiography() {
         return biography;

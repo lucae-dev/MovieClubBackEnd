@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -70,6 +71,8 @@ public class UserService {
         userDTO.setUsername(user.getUsername());
         userDTO.setLocked(user.isLocked());
         userDTO.setVerified(user.isVerified());
+        userDTO.setPropic(user.getPropic());
+        userDTO.setPropicFileId(user.getProPicFileId());
        // userDTO.setProviderIds(user.getProviderIds()); // This might need further mapping
         userDTO.setEmail(user.getEmail());
         userDTO.setPropic(user.getPropic());
@@ -254,8 +257,8 @@ public class UserService {
         }
         List<Movie> seenMovies = user.getSeenCollection().getMovies().subList(0,Integer.min( user.getSeenCollection().getMovies().size(), 9));
         if(!seenMovies.isEmpty()) {
-            MovieCollectionDTO movieCollectionDTO =movieCollectionService.convertToDTO(user.getSeenCollection());
-                  movieCollectionDTO.setMovies(movieService.addLikedToDTOList(userMain2, movieService.convertListToDTO(seenMovies)));
+            MovieCollectionDTO movieCollectionDTO = movieCollectionService.convertToDTO(user.getSeenCollection());
+            movieCollectionDTO.setMovies(movieService.addLikedToDTOList(userMain2, movieService.convertListToDTO(seenMovies)));
             userDTO.setSeenCollection(movieCollectionDTO);
         }
         return addFollowedToDTO( userMain2, userDTO);
@@ -299,6 +302,14 @@ public void deleteAccount(Long userId) {
          userRepository.delete(user);
 }
 
+    public ResponseEntity uploadProPic(Long id, String fileName, String fileId) {
+        User user = userRepository.findById(id).orElseThrow(()->new IllegalStateException("User not found"));
+        user.setProPicFileId(fileId);
+        user.setPropic("https://api005.backblazeb2.com/file/" + "PoppiProfilePictures/" + fileName);
+        System.out.println("For user " + user.getUsername() + "setting proPic to:" + user.getPropic());
+        userRepository.saveAndFlush(user);
+        return ResponseEntity.ok("https://api005.backblazeb2.com/file/" + "PoppiProfilePictures/" + fileName);
+    }
 
 
 //

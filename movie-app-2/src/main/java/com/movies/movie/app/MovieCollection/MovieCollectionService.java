@@ -281,7 +281,9 @@ public class MovieCollectionService {
               movieCollectionRepository.save(toBeSeen);
           }
 
-          return movieCollectionRepository.addMovieToCollection(seen.getId(), movie.getId())>0;
+          Boolean returnValue = movieCollectionRepository.addMovieToCollection(seen.getId(), movie.getId())>0;
+          movieCollectionRepository.flush();
+          return returnValue;
 
         }
 
@@ -303,7 +305,7 @@ public class MovieCollectionService {
         } else {
             user.getToBeSeenCollection().getTvSeries().removeIf(t -> Objects.equals(t.getId(), tvSeries.getId()));
             user.getSeenCollection().getTvSeries().add(tvSeries);
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
             return user.getSeenCollection().getTvSeries().stream().anyMatch(tvSeries1 -> Objects.equals(tvSeries1.getId(),tvSeries.getId()));
         }
 
@@ -327,8 +329,9 @@ public class MovieCollectionService {
                 movieCollectionRepository.save(seen);
             }
 
-            return movieCollectionRepository.addMovieToCollection(toBeSeen.getId(), movie.getId())>0;
-
+            Boolean returnValue = movieCollectionRepository.addMovieToCollection(toBeSeen.getId(), movie.getId())>0;
+            movieCollectionRepository.flush();
+            return returnValue;
         }
     }
 
@@ -351,7 +354,7 @@ public class MovieCollectionService {
             user.getSeenCollection().getTvSeries().removeIf(t -> Objects.equals(t.getId(), tvSeries.getId()));
 
             user.getToBeSeenCollection().getTvSeries().add(tvSeries);
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
             return user.getToBeSeenCollection().getTvSeries().stream().anyMatch(tvSeries1 -> Objects.equals(tvSeries1.getId(),tvSeries.getId()));
         }
 
@@ -366,7 +369,9 @@ public class MovieCollectionService {
         if(liked.getMovies().stream().anyMatch(movie1 -> movie1.getId().equals(movie.getId()))){
             return Boolean.TRUE;
         }
-        return movieCollectionRepository.addMovieToCollection(liked.getId(), movie.getId())>0;
+        Boolean returnValue = movieCollectionRepository.addMovieToCollection(liked.getId(), movie.getId())>0;
+        movieCollectionRepository.flush();
+        return returnValue;
     }
 
     //fix it like for the on for movies this will cause unexpected behaviours
@@ -421,7 +426,7 @@ public class MovieCollectionService {
                 .anyMatch(tvSeries1 ->Objects.equals( tvSeries1.getId() , tvSeries.getId()))) {
 
             user.getLikedCollection().getTvSeries().removeIf(t->tvSeries.getId().equals(t.getId()));
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
             System.out.println("remove from liked");
 
         }
@@ -443,7 +448,7 @@ public class MovieCollectionService {
             return id;
         } else {
             user.getFollowedCollections().add(collection);
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
             return collection.getId();
 
         }
@@ -487,7 +492,7 @@ public class MovieCollectionService {
        if(user.getId()==movieCollection.getOwner().getId()){
            movieCollection.setDescription(description);
        }
-      return convertToDTO(movieCollectionRepository.save(movieCollection));
+      return convertToDTO(movieCollectionRepository.saveAndFlush(movieCollection));
 
 
     }
@@ -501,7 +506,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
                 .anyMatch(movie2 -> movie2.getId() == movie.getId())) {
 
             movieCollection.getMovies().removeIf(m->movie.getId().equals(m.getId()));
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
         }
 
             return Boolean.FALSE;
@@ -520,7 +525,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
                 .anyMatch(tvSeries1 -> tvSeries1.getId() == tvSeries.getId())) {
 
             movieCollection.getTvSeries().removeIf(t->tvSeries.getId().equals(t.getId()));
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
         }
 
         return Boolean.FALSE;
@@ -541,7 +546,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
 
             movieCollection.getMovies().removeIf(movie -> idsInMovieCollection.contains(movie.getId()));
 
-            return convertToDTO(movieCollectionRepository.save(movieCollection));
+            return convertToDTO(movieCollectionRepository.saveAndFlush(movieCollection));
         } else {
             throw new IllegalArgumentException("You cannot modify this collection since you are not the owner!");
         }
@@ -560,7 +565,7 @@ MovieCollection movieCollection = user.getMyCollections().stream().filter(movieC
 
             movieCollection.getTvSeries().removeIf(tvSeries1 -> idsInMovieCollection.contains(tvSeries1.getId()));
 
-            return convertToDTO(movieCollectionRepository.save(movieCollection));
+            return convertToDTO(movieCollectionRepository.saveAndFlush(movieCollection));
         } else {
             throw new IllegalArgumentException("You cannot modify this collection since you are not the owner!");
         }
