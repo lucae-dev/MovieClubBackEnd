@@ -24,6 +24,8 @@ public class UserDTO {
     // birthday !! Important for recommendations
     private String email;
     private String propic;
+
+    private String propicFileId;
     //Firebase token for notifications !!!!!!!
    /* @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     Set<MovieRating> movieRatings;
@@ -31,6 +33,14 @@ public class UserDTO {
     //@OneToMany(mappedBy = )
     //movie comments
 
+
+    public String getPropicFileId() {
+        return propicFileId;
+    }
+
+    public void setPropicFileId(String propicFileId) {
+        this.propicFileId = propicFileId;
+    }
 
     private Set<User> followers;
 

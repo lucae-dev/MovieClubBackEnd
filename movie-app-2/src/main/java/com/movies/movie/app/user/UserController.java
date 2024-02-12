@@ -1,13 +1,25 @@
 package com.movies.movie.app.user;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.movies.movie.app.BackBlaze.BackblazeService;
 import com.movies.movie.app.MovieCollection.MovieCollectionDTO;
 import com.movies.movie.app.MovieRating.MovieRating;
 import com.movies.movie.app.MovieRating.MovieRatingService;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +32,8 @@ public class UserController {
 
     @Autowired
     public MovieRatingService movieRatingService;
+
+    @Autowired private BackblazeService backblazeService;
 
 
     @GetMapping(path = "/checkToken")
@@ -91,6 +105,21 @@ public class UserController {
         return userService.getPublicCollections(userId);
     }
 
+    @GetMapping("/getUploadUrl")
+    public ResponseEntity<String> getUploadUrl(
+            @AuthenticationPrincipal User user
+    ){
+        try {
+          return backblazeService.getUploadUrl();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/uploadProPic")
+    public ResponseEntity<String> saveProPic(@AuthenticationPrincipal User user, @RequestParam String fileName, @RequestParam String fileId) {
+        return userService.uploadProPic(user.getId(), fileName, fileId);
+    }
 
     /*@GetMapping("/savedMovies")
     public Set<MovieRating> getSavedMovies(@RequestParam(required = true) Long user_id){
