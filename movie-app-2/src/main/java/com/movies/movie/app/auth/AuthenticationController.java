@@ -1,6 +1,9 @@
 package com.movies.movie.app.auth;
 
 
+import com.movies.movie.app.auth.Bean.AuthenticationRequest;
+import com.movies.movie.app.auth.Bean.AuthenticationResponse;
+import com.movies.movie.app.auth.Bean.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-
     private final AuthenticationService service;
 
     @PostMapping("/register")
@@ -18,8 +20,9 @@ public class AuthenticationController {
     ) {
         return ResponseEntity.ok(service.register(request));
     }
-    @GetMapping  ("/confirmRegistration")
-    public ResponseEntity<AuthenticationResponse> confirm(@RequestParam String token){
+
+    @GetMapping("/confirmRegistration")
+    public ResponseEntity<AuthenticationResponse> confirm(@RequestParam String token) {
         return ResponseEntity.ok(service.confirmRegistration(AuthenticationResponse.builder().token(token).build()));
     }
 
@@ -29,6 +32,4 @@ public class AuthenticationController {
     ) {
         return ResponseEntity.ok(service.authenticate(request));
     }
-
-
 }

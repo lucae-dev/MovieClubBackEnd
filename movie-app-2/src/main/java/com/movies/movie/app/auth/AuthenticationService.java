@@ -8,17 +8,24 @@ import com.movies.movie.app.MovieCollection.MovieCollectionType;
 import com.movies.movie.app.Token.Token;
 import com.movies.movie.app.Token.TokenRepository;
 import com.movies.movie.app.Token.TokenType;
+import com.movies.movie.app.auth.Bean.AuthenticationRequest;
+import com.movies.movie.app.auth.Bean.AuthenticationResponse;
+import com.movies.movie.app.auth.Bean.RegisterRequest;
+import com.movies.movie.app.auth.Exception.AuthenticationException;
+import com.movies.movie.app.auth.Exception.RegistrationException;
 import com.movies.movie.app.user.Role;
 import com.movies.movie.app.user.User;
 import com.movies.movie.app.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -35,6 +42,8 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
 
+        validateRegistrationRequest(request);
+
         var user2 = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -44,6 +53,58 @@ public class AuthenticationService {
 
         var user = repository.save(user2);
 
+        var savedUser = setUpUser(user);
+
+        var jwtToken = jwtService.generateToken(user);
+        saveUserToken(savedUser, jwtToken);
+        String confirmmsg = "Hi " + user.getUsername() + ", thank you for registering to MovieClub. Click this link to confirm: " + thisUrl +"/confirmRegistration?token=" + jwtToken + ".";
+        // send confirmation email!
+        HtmlContent htmlContent = new HtmlContent(thisUrl+"/confirmRegistration?token=" + jwtToken, user.getUsername());
+       /* try {
+            emailService.sendNiceEmail(user.getEmail(), "MovieClub registration", htmlContent.getHtmlContent());
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }*/
+        //emailService.sendSimpleEmail(user.getEmail(), "MovieClub registration", confirmmsg );
+
+
+        //non mandare il token come risposta per sicurezza, altrimenti chiunque puo confermare qualunque email
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+    }
+
+    private void validateRegistrationRequest(RegisterRequest request) {
+        validateRequestFields(request);
+        validateRegistrationConsistency(request);
+    }
+
+    private static void validateRequestFields(RegisterRequest request) {
+        String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+
+        // Password requirements: at least 8 characters, one uppercase, one lowercase, one number, and one special character
+        // String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
+
+        if (request.getUsername().length() < 4 ) {
+            throw new RegistrationException("Username must have at least 4 characters");
+        } else if (!Pattern.matches(EMAIL_REGEX, request.getEmail())) {
+            throw new RegistrationException("Email not valid");
+        } else if (request.getPassword() == null || request.getPassword().length() < 6) {
+            throw new RegistrationException("Your password should have at least 6 characters");
+        }
+    }
+
+    private void validateRegistrationConsistency(RegisterRequest request) {
+        if (repository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RegistrationException("Username already taken");
+        } else if (repository.findUserByEmail(request.getEmail()).isPresent()) {
+            throw new RegistrationException("Email already associated to an acocunt");
+        } else if (request.getPassword().isBlank() || request.getPassword().isBlank()) {
+            throw new RegistrationException("Invalid password");
+        }
+    }
+
+    private User setUpUser(User user) {
         MovieCollection seenCollection = new MovieCollection();
         seenCollection.setName("Seen");
         seenCollection.setCreation_date(LocalDateTime.now());
@@ -51,7 +112,7 @@ public class AuthenticationService {
         seenCollection.setType(MovieCollectionType.SEEN);
         seenCollection.setVisible(Boolean.TRUE);
         user.setSeenCollection(seenCollection);
-        user.setPropic("https://picsum.photos/seed/"+user.getUsername() +"/300/300");
+        user.setPropic("https://picsum.photos/seed/"+ user.getUsername() +"/300/300");
 
         MovieCollection toBeSeenCollection = new MovieCollection();
         toBeSeenCollection.setName("To Be Seen");
@@ -70,24 +131,7 @@ public class AuthenticationService {
         user.setLikedCollection(likedCollection);
 
         var savedUser = repository.save(user);
-
-        var jwtToken = jwtService.generateToken(user);
-        saveUserToken(savedUser, jwtToken);
-        //String confirmmsg = "Hi " + user.getUsername() + ", thank you for registering to MovieClub. Click this link to confirm: " + thisUrl +"/confirmRegistration?token=" + jwtToken + ".";
-        // send confirmation email!
-        HtmlContent htmlContent = new HtmlContent(thisUrl+"/confirmRegistration?token=" + jwtToken, user.getUsername());
-       /* try {
-            emailService.sendNiceEmail(user.getEmail(), "MovieClub registration", htmlContent.getHtmlContent());
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }*/
-        //emailService.sendSimpleEmail(user.getEmail(), "MovieClub registration", confirmmsg );
-
-
-        //non mandare il token come risposta per sicurezza, altrimenti chiunque puo confermare qualunque email
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        return savedUser;
     }
 
     public AuthenticationResponse confirmRegistration(AuthenticationResponse token){
@@ -115,14 +159,23 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            System.out.println("Invalid username or password.");
+            throw new AuthenticationException("Invalid username or password");
+        } catch (AuthenticationException e) {
+            System.out.println("Authentication failed: " + e.getMessage());
+            throw new AuthenticationException("Authentication failed, retry");
+        }
+
         var user = repository.findByUsername(request.getUsername())
-                .orElseThrow();
+                .orElseThrow(() -> new AuthenticationException("Username not found!"));
         var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);

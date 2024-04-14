@@ -20,4 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u JOIN FETCH u.myCollections mc WHERE u.id = :userId AND mc.visible = TRUE")
     Optional<User> findUserWithVisibleCollections(@Param("userId") Long userId);
+
+    @Query("SELECT u from User u WHERE u.email = :email")
+    Optional<User> findUserByEmail(@Param("email") String email);
 }

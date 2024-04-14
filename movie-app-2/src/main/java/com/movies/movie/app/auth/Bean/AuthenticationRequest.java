@@ -1,4 +1,4 @@
-package com.movies.movie.app.auth;
+package com.movies.movie.app.auth.Bean;
 
 
 import lombok.AllArgsConstructor;
@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+public class AuthenticationRequest {
 
     private String username;
-    private String email;
-    private String password;
+    String password;
 }
