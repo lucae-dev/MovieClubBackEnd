@@ -26,6 +26,7 @@ import org.springframework.web.util.UriUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,8 @@ public class SearchController {
         Map<String, Object> results = new HashMap<>();
 
         if (keyword == null || keyword.isBlank() || keyword.isEmpty()) {
-            results.put("movieCollections", null);
-            results.put("users", null);
+            results.put("movieCollections",  new ArrayList<>());
+            results.put("users",  new ArrayList<>());
             return ResponseEntity.ok(results);
         }
 
