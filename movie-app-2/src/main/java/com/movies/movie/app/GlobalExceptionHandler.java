@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<Object> handleRegistrationException(RegistrationException e) {
-        return new ResponseEntity<>(new AuthenticationResponse("Validation failed: " + e.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Validation failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Object> handleAuthenticationException(AuthenticationException e) {
-        return new ResponseEntity<>(new AuthenticationResponse("Authentication failed: " + e.getMessage()), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("Authentication failed: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 }
