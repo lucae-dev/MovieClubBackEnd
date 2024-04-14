@@ -52,20 +52,25 @@ public class SearchController {
                                     @RequestParam(defaultValue = "it-IT") String region,
                                     @RequestParam(defaultValue = "en-US") String language) {
         Pageable pageable =  PageRequest.of(page, size);
+        Map<String, Object> results = new HashMap<>();
+
+        if (keyword == null || keyword.isBlank() || keyword.isEmpty()) {
+            results.put("movieCollections", null);
+            results.put("users", null);
+            return ResponseEntity.ok(results);
+        }
 
         String Keyword;
         try {
-             Keyword = URLDecoder.decode(keyword, "UTF-8");
+            Keyword = URLDecoder.decode(keyword, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             return ResponseEntity.badRequest().body("error in decoding query");
         }
 
         System.out.println(Keyword);
-        List<MovieCollectionDTO> movieCollections = movieCollectionService.searchByKeyword(user, Keyword, pageable);
+        List<MovieCollectionDTO> movieCollections =  movieCollectionService.searchByKeyword(user, Keyword, pageable);
         List<UserDTO> users = userService.searchByKeyword(user, Keyword, pageable);
-       // List<MovieDTO> movies = movieService.searchMovies(user,Keyword, "", UriUtils.decode(region, "UTF-8"), language);
-        Map<String, Object> results = new HashMap<>();
-        //results.put("movies", movies);
+        // List<MovieDTO> movies = movieService.searchMovies(user,Keyword, "", UriUtils.decode(region, "UTF-8"), language);
         results.put("movieCollections", movieCollections);
         results.put("users", users);
 
